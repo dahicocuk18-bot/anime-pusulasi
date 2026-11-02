@@ -49,7 +49,7 @@ input[type=search]{flex:1 1 240px;min-width:0}
 .cover img{width:100%;height:100%;object-fit:cover;display:block}
 .cover .flag{position:absolute;left:8px;top:8px;max-width:calc(100% - 62px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font:600 11px var(--body);background:rgba(10,12,20,.78);color:#fff;border-radius:6px;padding:3px 7px}
 .cover .score{position:absolute;right:8px;top:8px;font:600 11px var(--mono);background:var(--accent);color:var(--accent-ink);border-radius:6px;padding:3px 6px}
-.cover .ep{position:absolute;left:8px;bottom:8px;right:8px;line-height:1.3;font:600 12px var(--body);background:rgba(10,12,20,.82);color:#fff;border-radius:8px;padding:5px 8px}
+.cover .ep{position:absolute;left:8px;bottom:8px;right:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font:600 12px var(--body);background:rgba(10,12,20,.82);color:#fff;border-radius:8px;padding:5px 8px}
 .lbody{padding:10px;display:flex;flex-direction:column;gap:6px;flex:1;min-width:0}
 .lbody h3{font:600 14px/1.25 var(--display);margin:0;overflow-wrap:anywhere}
 .native{font-size:12px;color:var(--muted);overflow-wrap:anywhere}
@@ -224,7 +224,7 @@ function card(m,epInfo){
   const el=document.createElement("article");el.className="lcard";
   const cov=document.createElement("div");cov.className="cover";if(m.coverImage&&m.coverImage.color)cov.style.background=m.coverImage.color;
   if(m.coverImage&&m.coverImage.large){const img=document.createElement("img");img.loading="lazy";img.alt=name;img.src=m.coverImage.large;img.onerror=()=>img.remove();cov.append(img)}
-  const fl=document.createElement("span");fl.className="flag";fl.textContent=COUNTRY_TR[m.countryOfOrigin]||m.countryOfOrigin||"";if(!fl.textContent)fl.hidden=true;cov.append(fl);
+  const fl=document.createElement("span");fl.className="flag";fl.textContent=[COUNTRY_TR[m.countryOfOrigin]||m.countryOfOrigin,FORMAT_TR[m.format]||m.format].filter(Boolean).join(" · ");cov.append(fl);
   if(m.averageScore){const sc=document.createElement("span");sc.className="score";sc.textContent=(m.averageScore/10).toFixed(1);cov.append(sc)}
   if(epInfo){const ep=document.createElement("span");ep.className="ep";ep.textContent=epInfo;cov.append(ep)}
   const b=document.createElement("div");b.className="lbody";
@@ -232,7 +232,7 @@ function card(m,epInfo){
   const alt=[m.title.native,m.title.romaji].filter(x=>x&&x!==name);
   if(alt.length){const n=document.createElement("div");n.className="native";n.textContent=alt[0];b.append(n)}
   const meta=document.createElement("div");meta.className="meta";
-  meta.textContent=[FORMAT_TR[m.format]||m.format,m.seasonYear||(m.startDate&&m.startDate.year),m.episodes?m.episodes+" bölüm":null,STATUS_TR[m.status]].filter(Boolean).join(" · ");b.append(meta);
+  meta.textContent=[m.seasonYear||(m.startDate&&m.startDate.year),m.episodes?m.episodes+" bölüm":null,STATUS_TR[m.status]].filter(Boolean).join(" · ");b.append(meta);
   if(m.nextAiringEpisode&&!epInfo){const nx=document.createElement("div");nx.className="meta";nx.textContent=`${m.nextAiringEpisode.episode}. bölüm ${until(m.nextAiringEpisode.airingAt)}`;b.append(nx)}
   if(m.genres&&m.genres.length){const tg=document.createElement("div");tg.className="tags";
     m.genres.slice(0,3).forEach(g=>{const s=document.createElement("span");s.className="tag";s.textContent=GENRE_TR[g]||g;tg.append(s)});b.append(tg)}
