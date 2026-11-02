@@ -1,0 +1,341 @@
+<!-- anime-pusulasi-ui -->
+<title>Anime Pusulası</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/* Layout: sticky tab bar; poster grid of live AniList cards; static watch guide */
+:root{
+  --bg:#f2f3f7; --surface:#ffffff; --ink:#151a2c; --muted:#5b6178; --line:#dcdfea;
+  --accent:#d63c6a; --accent-ink:#ffffff; --accent-soft:#fbe4ec; --ok:#1f8a5b; --ok-soft:#dff3e9; --warn:#b4671a; --warn-soft:#fbeedd;
+  --display:"Bricolage Grotesque",ui-sans-serif,system-ui,sans-serif;
+  --body:"Figtree",ui-sans-serif,system-ui,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#10131e; --surface:#181c2b; --ink:#e9ebf3; --muted:#9aa0b8; --line:#2a2f44;
+  --accent:#ff6b93; --accent-ink:#1a0d13; --accent-soft:#3a1d29; --ok:#4cc38a; --ok-soft:#173326; --warn:#e8a04f; --warn-soft:#3a2a17; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#10131e; --surface:#181c2b; --ink:#e9ebf3; --muted:#9aa0b8; --line:#2a2f44;
+  --accent:#ff6b93; --accent-ink:#1a0d13; --accent-soft:#3a1d29; --ok:#4cc38a; --ok-soft:#173326; --warn:#e8a04f; --warn-soft:#3a2a17; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font:15px/1.55 var(--body)}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.wrap{max-width:1080px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+header.top{padding-block:24px 4px}
+h1{font:800 clamp(30px,6vw,46px)/1.05 var(--display);letter-spacing:-.02em;margin:0;text-wrap:balance}
+h1 span{color:var(--accent)}
+.lede{color:var(--muted);max-width:62ch;margin:8px 0 0}
+nav.tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);border-bottom:1px solid var(--line);margin-top:14px}
+nav.tabs .wrap{display:flex;gap:2px;overflow-x:auto}
+.tab{appearance:none;border:0;background:none;color:var(--muted);font:600 15px var(--body);padding:12px 12px;border-bottom:3px solid transparent;cursor:pointer;white-space:nowrap}
+.tab[aria-selected="true"]{color:var(--ink);border-color:var(--accent)}
+.tab:focus-visible,button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+main{padding-block:16px 48px}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+input[type=search],select{font:inherit;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+input[type=search]{flex:1 1 240px;min-width:0}
+.seg{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:7px 13px;font:600 13px var(--body);cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.count{color:var(--muted);font-size:13px;margin:12px 0 10px;min-height:1.2em}
+.filters{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:10px}
+@media (max-width:640px){.filters{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.filters select{width:100%;min-width:0}
+.btn{appearance:none;border:1px solid var(--line);background:var(--surface);color:var(--ink);font:600 14px var(--body);border-radius:10px;padding:10px 14px;cursor:pointer}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.lgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px}
+@media (max-width:420px){.lgrid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.lcard{background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden;display:flex;flex-direction:column;min-width:0}
+.cover{position:relative;aspect-ratio:2/3;max-width:100%;background:var(--line)}
+.cover img{width:100%;height:100%;object-fit:cover;display:block}
+.cover .flag{position:absolute;left:8px;top:8px;font:600 11px var(--body);background:rgba(10,12,20,.78);color:#fff;border-radius:6px;padding:3px 7px}
+.cover .score{position:absolute;right:8px;top:8px;font:600 11px var(--mono);background:var(--accent);color:var(--accent-ink);border-radius:6px;padding:3px 6px}
+.cover .ep{position:absolute;left:8px;bottom:8px;right:8px;font:600 12px var(--body);background:rgba(10,12,20,.82);color:#fff;border-radius:8px;padding:5px 8px}
+.lbody{padding:10px;display:flex;flex-direction:column;gap:6px;flex:1;min-width:0}
+.lbody h3{font:600 14px/1.25 var(--display);margin:0;overflow-wrap:anywhere}
+.native{font-size:12px;color:var(--muted);overflow-wrap:anywhere}
+.meta{font:12px var(--mono);color:var(--muted)}
+.tags{display:flex;flex-wrap:wrap;gap:4px}
+.tag{font-size:11px;background:var(--accent-soft);color:var(--ink);border-radius:6px;padding:2px 7px}
+details.desc{font-size:12px;color:var(--muted)}
+details.desc summary{cursor:pointer;color:var(--ink);font-weight:600}
+details.desc p{margin:6px 0}
+details.desc a{color:var(--accent);font-weight:600}
+.watch{display:flex;flex-direction:column;gap:4px;margin-top:auto}
+.watch a{display:flex;justify-content:space-between;align-items:center;gap:6px;font:600 12px var(--body);text-decoration:none;color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:6px 8px;min-width:0}
+.watch a span:first-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.watch a:hover{border-color:var(--accent)}
+.price{flex:none;font:600 10px var(--body);border-radius:5px;padding:1px 6px}
+.price.free{background:var(--ok-soft);color:var(--ok)}
+.price.paid{background:var(--warn-soft);color:var(--warn)}
+.more{display:flex;justify-content:center;margin-top:16px}
+.msg{padding:18px;border:1px dashed var(--line);border-radius:12px;color:var(--muted);text-align:center;grid-column:1/-1}
+.note{font-size:13px;color:var(--muted);background:var(--surface);border:1px dashed var(--line);border-radius:12px;padding:12px 14px;margin-top:18px}
+.note b{color:var(--ink)}
+/* Rehber */
+.guide{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
+.pcard{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.pcard h3{font:700 17px var(--display);margin:0}
+.pcard dl{display:grid;grid-template-columns:auto 1fr;gap:4px 10px;margin:0;font-size:13px}
+.pcard dt{color:var(--muted)}
+.pcard dd{margin:0}
+.pcard p{margin:0;font-size:13px;color:var(--muted)}
+.pcard a.btn{text-decoration:none;text-align:center;margin-top:auto}
+.howto{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:14px}
+.howto h2{font:700 18px var(--display);margin:0 0 6px}
+.howto ol{margin:0;padding-left:20px;color:var(--muted);display:grid;gap:3px}
+.updated{font:12px var(--mono);color:var(--muted)}
+</style>
+
+<header class="top wrap">
+  <h1>Anime <span>Pusulası</span></h1>
+  <p class="lede">Yeni çıkan bölümleri takip et, dünyanın her yerinden anime dizi ve filmlerini bul, Türkçe altyazıyla nerede izleyebileceğini gör.</p>
+</header>
+
+<nav class="tabs" aria-label="Bölümler"><div class="wrap" role="tablist">
+  <button class="tab" role="tab" id="t-yeni" aria-selected="true" data-view="yeni">Yeni Çıkanlar</button>
+  <button class="tab" role="tab" id="t-kesfet" aria-selected="false" data-view="kesfet">Keşfet</button>
+  <button class="tab" role="tab" id="t-rehber" aria-selected="false" data-view="rehber">Nerede İzlenir</button>
+</div></nav>
+
+<main class="wrap">
+  <section id="yeni">
+    <div class="row">
+      <div class="seg" role="group" aria-label="Görünüm">
+        <button class="chip" data-mode="bolumler" aria-pressed="true">Son bölümler</button>
+        <button class="chip" data-mode="sezon" aria-pressed="false">Bu sezon</button>
+        <button class="chip" data-mode="filmler" aria-pressed="false">Yeni filmler</button>
+        <button class="chip" data-mode="yakinda" aria-pressed="false">Yakında</button>
+      </div>
+    </div>
+    <div class="row" style="margin-top:8px">
+      <select id="yCountry" aria-label="Ülke">
+        <option value="">Tüm ülkeler</option><option value="JP">Japonya</option><option value="CN">Çin (donghua)</option><option value="KR">Kore</option>
+      </select>
+      <button class="btn" id="yRefresh">Yenile</button>
+      <span class="updated" id="yUpdated"></span>
+    </div>
+    <p class="count" id="ycount" role="status"></p>
+    <div class="lgrid" id="ygrid"></div>
+    <div class="more"><button class="btn" id="ymore" hidden>Daha fazla göster</button></div>
+  </section>
+
+  <section id="kesfet" hidden>
+    <div class="row">
+      <input type="search" id="lq" placeholder="Anime ara: Naruto, Solo Leveling, 斗罗大陆…" aria-label="Anime ara">
+    </div>
+    <div class="filters">
+      <select id="fFormat" aria-label="Dizi veya film">
+        <option value="">Dizi + film</option><option value="SERIES">Sadece diziler</option><option value="MOVIE">Sadece filmler</option>
+      </select>
+      <select id="fCountry" aria-label="Ülke">
+        <option value="">Tüm ülkeler</option><option value="JP">Japonya</option><option value="CN">Çin (donghua)</option><option value="KR">Kore</option><option value="TW">Tayvan</option>
+      </select>
+      <select id="fGenre" aria-label="Tür"><option value="">Tüm türler</option></select>
+      <select id="fSort" aria-label="Sırala">
+        <option value="POPULARITY_DESC">En popüler</option><option value="TRENDING_DESC">Şu an gündemde</option><option value="SCORE_DESC">En yüksek puan</option><option value="START_DATE_DESC">En yeni</option>
+      </select>
+    </div>
+    <div class="row" style="margin-top:8px">
+      <label for="fYear" class="updated">Yıl</label>
+      <select id="fYear"><option value="">Hepsi</option></select>
+    </div>
+    <p class="count" id="lcount" role="status"></p>
+    <div class="lgrid" id="lgrid"></div>
+    <div class="more"><button class="btn" id="lmore" hidden>Daha fazla göster</button></div>
+  </section>
+
+  <section id="rehber" hidden>
+    <div class="howto">
+      <h2>YouTube'da Türkçe altyazı nasıl açılır</h2>
+      <ol>
+        <li>Resmi kanaldaki bölümü aç (aşağıdaki YouTube kartındaki kanallar).</li>
+        <li>Videoya dokun, sağ üstteki <b>⚙ Ayarlar</b>'a bas.</li>
+        <li><b>Altyazılar</b> → <b>Otomatik çevir</b> → <b>Türkçe</b>'yi seç.</li>
+      </ol>
+      <p class="updated" style="margin-top:8px">Otomatik çeviri, videoda İngilizce ya da başka bir dilde altyazı varsa çalışır. Kalitesi makine çevirisi düzeyindedir.</p>
+    </div>
+    <div class="guide" id="guide"></div>
+    <div class="howto" id="appinfo" hidden>
+      <h2>Uygulama</h2>
+      <p class="updated" id="appver"></p>
+      <p class="updated">Ekranlar her açılışta kendiliğinden güncellenir. Yeni uygulama sürümü çıkınca günde bir kontrol edilir ve bildirim gelir.</p>
+      <div class="row" style="margin-top:8px"><button class="btn" id="checkUpd">Güncellemeyi şimdi kontrol et</button></div>
+    </div>
+    <p class="note">Fiyatlar ve kataloglar sık değişir; üyelik almadan önce platformun kendi sayfasına bak. İnternette "Türkçe altyazılı anime izle" diye çıkan sitelerin çoğu lisanssızdır; bu uygulama yalnızca yasal platformlara bağlantı verir.</p>
+  </section>
+</main>
+
+<script>
+const $=s=>document.querySelector(s);
+const enc=encodeURIComponent;
+const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
+
+/* ===== Platformlar (fiyat etiketi ve Türkçe altyazı durumu) ===== */
+const PLATFORMS=[
+  {name:"YouTube (resmi kanallar)",price:"free",tr:"Otomatik çeviriyle",note:"Muse Asia, Ani-One Asia, Toei Animation gibi resmi kanallar bölümleri ücretsiz yayınlar.",url:"https://www.youtube.com/@MuseAsia",cta:"Muse Asia kanalını aç"},
+  {name:"Crunchyroll",price:"free",priceText:"Ücretsiz (reklamlı) + ücretli",tr:"Sınırlı",note:"Reklamlı ücretsiz planda bazı diziler izlenebilir; yeni bölümler genelde ücretli üyelikte.",url:"https://www.crunchyroll.com",cta:"Crunchyroll'u aç"},
+  {name:"Bilibili",price:"free",tr:"Otomatik çeviriyle",note:"Özellikle Çin donghua'ları için. Çoğu içerik ücretsiz, bazıları VIP.",url:"https://www.bilibili.tv",cta:"Bilibili'yi aç"},
+  {name:"Netflix",price:"paid",tr:"Çoğu yapımda var",note:"Türkçe altyazı ve dublaj seçeneği en geniş platform.",url:"https://www.netflix.com/tr/browse/genre/7424",cta:"Netflix anime"},
+  {name:"Prime Video",price:"paid",tr:"Seçili yapımlarda",note:"Bazı popüler animeler Türkçe altyazılı.",url:"https://www.primevideo.com",cta:"Prime Video'yu aç"},
+  {name:"Disney+",price:"paid",tr:"Sınırlı",note:"Az sayıda anime; bazıları Türkçe altyazılı.",url:"https://www.disneyplus.com/tr-tr",cta:"Disney+'ı aç"}
+];
+const SITE_PRICE={"YouTube":"free","Bilibili":"free","Bilibili TV":"free","Crunchyroll":"free","Tubi TV":"free","Pluto TV":"free","RetroCrush":"free",
+  "Netflix":"paid","Amazon Prime Video":"paid","Amazon":"paid","Disney Plus":"paid","Hulu":"paid","HIDIVE":"paid","iQIYI":"paid","Tencent Video":"paid","WeTV":"paid","Youku":"paid","Max":"paid","HBO Max":"paid","Apple TV":"paid"};
+(function renderGuide(){const g=$("#guide");PLATFORMS.forEach(p=>{const c=document.createElement("article");c.className="pcard";
+  c.innerHTML=`<h3></h3><dl><dt>Ücret</dt><dd></dd><dt>Türkçe altyazı</dt><dd></dd></dl><p></p><a class="btn" target="_blank" rel="noopener"></a>`;
+  c.querySelector("h3").textContent=p.name;
+  const pr=document.createElement("span");pr.className="price "+p.price;pr.textContent=p.priceText||(p.price==="free"?"Ücretsiz":"Ücretli");c.querySelectorAll("dd")[0].append(pr);
+  c.querySelectorAll("dd")[1].textContent=p.tr;c.querySelector("p").textContent=p.note;
+  const a=c.querySelector("a");a.href=p.url;a.textContent=p.cta+" ↗";g.append(c)})})();
+
+/* ===== AniList ===== */
+const API="https://graphql.anilist.co";
+const GENRE_TR={"Action":"Aksiyon","Adventure":"Macera","Comedy":"Komedi","Drama":"Dram","Fantasy":"Fantastik","Horror":"Korku","Mahou Shoujo":"Büyülü Kız","Mecha":"Mecha","Music":"Müzik","Mystery":"Gizem","Psychological":"Psikolojik","Romance":"Romantik","Sci-Fi":"Bilim Kurgu","Slice of Life":"Gündelik Hayat","Sports":"Spor","Supernatural":"Doğaüstü","Thriller":"Gerilim"};
+const COUNTRY_TR={JP:"Japonya",CN:"Çin",KR:"Kore",TW:"Tayvan"};
+const FORMAT_TR={TV:"Dizi",TV_SHORT:"Kısa dizi",MOVIE:"Film",SPECIAL:"Özel",OVA:"OVA",ONA:"İnternet dizisi",MUSIC:"Klip"};
+const STATUS_TR={RELEASING:"Yayında",FINISHED:"Bitti",NOT_YET_RELEASED:"Yakında",CANCELLED:"İptal",HIATUS:"Ara verdi"};
+const SEASON_TR={WINTER:"Kış",SPRING:"İlkbahar",SUMMER:"Yaz",FALL:"Sonbahar"};
+const FIELDS=`id siteUrl isAdult title{romaji english native} coverImage{large color} seasonYear episodes averageScore genres countryOfOrigin format status
+ description(asHtml:false) externalLinks{site url type} nextAiringEpisode{episode airingAt} startDate{year month day}`;
+const Q_MEDIA=`query($page:Int,$search:String,$country:CountryCode,$genre:String,$formatIn:[MediaFormat],$year:Int,$season:MediaSeason,$status:MediaStatus,$sort:[MediaSort]){
+ Page(page:$page,perPage:24){pageInfo{hasNextPage total}
+  media(type:ANIME,isAdult:false,search:$search,countryOfOrigin:$country,genre:$genre,format_in:$formatIn,seasonYear:$year,season:$season,status:$status,sort:$sort){${FIELDS}}}}`;
+const Q_AIRING=`query($page:Int,$from:Int,$to:Int){Page(page:$page,perPage:50){pageInfo{hasNextPage}
+ airingSchedules(airingAt_greater:$from,airingAt_lesser:$to,sort:TIME_DESC){episode airingAt media{${FIELDS}}}}}`;
+
+let cbId=0;const cbs={};
+window.__httpCb=(id,status,text)=>{const f=cbs[id];delete cbs[id];if(f)f(status,text)};
+function gql(query,variables){
+  const body=JSON.stringify({query,variables});
+  const p=(window.Android&&window.Android.httpPost)
+    ?new Promise((res,rej)=>{const id=++cbId;cbs[id]=(st,tx)=>st>=200&&st<300?res(tx):rej({status:st});window.Android.httpPost(String(id),API,body)})
+    :fetch(API,{method:"POST",headers:{"Content-Type":"application/json","Accept":"application/json"},body}).then(r=>r.ok?r.text():Promise.reject({status:r.status}));
+  return p.then(t=>{const j=JSON.parse(t);if(j.errors&&!j.data)throw{status:(j.errors[0]&&j.errors[0].status)||0};return j.data});
+}
+function clean(s){return (s||"").replace(/<br\s*\/?>/gi,"\n").replace(/<[^>]+>/g,"").replace(/&quot;/g,'"').replace(/&amp;/g,"&").replace(/&#039;/g,"'").trim()}
+function ago(ts){const d=Math.round(Date.now()/1000-ts);if(d<3600)return Math.max(1,Math.round(d/60))+" dk önce";if(d<86400)return Math.round(d/3600)+" saat önce";return Math.round(d/86400)+" gün önce"}
+function until(ts){const d=Math.round(ts-Date.now()/1000);if(d<3600)return Math.max(1,Math.round(d/60))+" dk sonra";if(d<86400)return Math.round(d/3600)+" saat sonra";return Math.round(d/86400)+" gün sonra"}
+function watchLink(href,label,price){const a=document.createElement("a");a.href=href;a.target="_blank";a.rel="noopener";
+  const t=document.createElement("span");t.textContent=label+" ↗";a.append(t);
+  if(price){const p=document.createElement("span");p.className="price "+price;p.textContent=price==="free"?"Ücretsiz":"Ücretli";a.append(p)}
+  return a}
+function card(m,epInfo){
+  const name=m.title.english||m.title.romaji||m.title.native||"?";
+  const el=document.createElement("article");el.className="lcard";
+  const cov=document.createElement("div");cov.className="cover";if(m.coverImage&&m.coverImage.color)cov.style.background=m.coverImage.color;
+  if(m.coverImage&&m.coverImage.large){const img=document.createElement("img");img.loading="lazy";img.alt=name;img.src=m.coverImage.large;img.onerror=()=>img.remove();cov.append(img)}
+  const fl=document.createElement("span");fl.className="flag";fl.textContent=[COUNTRY_TR[m.countryOfOrigin]||m.countryOfOrigin,FORMAT_TR[m.format]||m.format].filter(Boolean).join(" · ");cov.append(fl);
+  if(m.averageScore){const sc=document.createElement("span");sc.className="score";sc.textContent=(m.averageScore/10).toFixed(1);cov.append(sc)}
+  if(epInfo){const ep=document.createElement("span");ep.className="ep";ep.textContent=epInfo;cov.append(ep)}
+  const b=document.createElement("div");b.className="lbody";
+  const h=document.createElement("h3");h.textContent=name;b.append(h);
+  const alt=[m.title.native,m.title.romaji].filter(x=>x&&x!==name);
+  if(alt.length){const n=document.createElement("div");n.className="native";n.textContent=alt[0];b.append(n)}
+  const meta=document.createElement("div");meta.className="meta";
+  meta.textContent=[m.seasonYear||(m.startDate&&m.startDate.year),m.episodes?m.episodes+" bölüm":null,STATUS_TR[m.status]].filter(Boolean).join(" · ");b.append(meta);
+  if(m.nextAiringEpisode&&!epInfo){const nx=document.createElement("div");nx.className="meta";nx.textContent=`${m.nextAiringEpisode.episode}. bölüm ${until(m.nextAiringEpisode.airingAt)}`;b.append(nx)}
+  if(m.genres&&m.genres.length){const tg=document.createElement("div");tg.className="tags";
+    m.genres.slice(0,3).forEach(g=>{const s=document.createElement("span");s.className="tag";s.textContent=GENRE_TR[g]||g;tg.append(s)});b.append(tg)}
+  const d=clean(m.description);
+  if(d){const det=document.createElement("details");det.className="desc";const sm=document.createElement("summary");sm.textContent="Konusu";
+    const p=document.createElement("p");p.textContent=d.length>420?d.slice(0,420)+"…":d;
+    const tr=document.createElement("a");tr.href="https://translate.google.com/?sl=auto&tl=tr&op=translate&text="+enc(d.slice(0,4000));tr.target="_blank";tr.rel="noopener";tr.textContent="Türkçe oku ↗";
+    det.append(sm,p,tr);b.append(det)}
+  const W=document.createElement("div");W.className="watch";const seen=new Set();
+  (m.externalLinks||[]).filter(x=>x.type==="STREAMING"&&x.url).forEach(x=>{if(seen.has(x.site))return;seen.add(x.site);W.append(watchLink(x.url,x.site,SITE_PRICE[x.site]||null))});
+  const q=m.title.romaji||name;
+  if(!seen.has("YouTube"))W.append(watchLink("https://www.youtube.com/results?search_query="+enc(q+" türkçe altyazı"),"YouTube'da ara","free"));
+  if(!seen.has("Netflix"))W.append(watchLink("https://www.netflix.com/search?q="+enc(m.title.english||q),"Netflix'te ara","paid"));
+  b.append(W);el.append(cov,b);return el}
+function msg(grid,t){const m=document.createElement("div");m.className="msg";m.textContent=t;grid.append(m)}
+function errText(e){return e&&e.status===429?"Çok hızlı istek gönderildi. Bir dakika bekleyip Yenile'ye bas."
+  :"Anime veritabanına bağlanılamadı. İnternet bağlantını kontrol edip Yenile'ye bas. (claude.ai önizlemesinde canlı veri kapalıdır; uygulamada çalışır.)"}
+
+/* ===== Yeni Çıkanlar ===== */
+function currentSeason(){const n=new Date();const m=n.getMonth()+1;let y=n.getFullYear();
+  if(m===12)return{season:"WINTER",year:y+1};if(m<=2)return{season:"WINTER",year:y};if(m<=5)return{season:"SPRING",year:y};if(m<=8)return{season:"SUMMER",year:y};return{season:"FALL",year:y}}
+let yMode=store.get("ap-ymode")||"bolumler",yPage=1,ySeq=0,yBusy=false,ySeen=new Set();
+if(!["bolumler","sezon","filmler","yakinda"].includes(yMode))yMode="bolumler";
+document.querySelectorAll("[data-mode]").forEach(b=>{b.setAttribute("aria-pressed",b.dataset.mode===yMode);
+  b.onclick=()=>{yMode=b.dataset.mode;store.set("ap-ymode",yMode);document.querySelectorAll("[data-mode]").forEach(x=>x.setAttribute("aria-pressed",x===b));loadYeni(true)}});
+async function loadYeni(reset){
+  const grid=$("#ygrid");const seq=++ySeq;yBusy=true;
+  if(reset){yPage=1;ySeen=new Set();grid.replaceChildren()}
+  $("#ymore").hidden=true;$("#ycount").textContent="Yükleniyor…";
+  const country=$("#yCountry").value;
+  try{
+    let items=[],hasNext=false,label="";
+    if(yMode==="bolumler"){
+      const now=Math.floor(Date.now()/1000);
+      const data=await gql(Q_AIRING,{page:yPage,from:now-7*86400,to:now});
+      hasNext=data.Page.pageInfo.hasNextPage;
+      data.Page.airingSchedules.forEach(s=>{const m=s.media;if(!m||m.isAdult)return;if(country&&m.countryOfOrigin!==country)return;
+        if(ySeen.has(m.id))return;ySeen.add(m.id);items.push([m,`${s.episode}. bölüm · ${ago(s.airingAt)}`])});
+      label="Son 7 günde yayınlanan bölümler";
+    }else{
+      const cs=currentSeason();const v={page:yPage};
+      if(country)v.country=country;
+      if(yMode==="sezon"){v.season=cs.season;v.year=cs.year;v.sort=["POPULARITY_DESC"];v.formatIn=["TV","TV_SHORT","ONA"];label=`${cs.year} ${SEASON_TR[cs.season]} sezonu`}
+      if(yMode==="filmler"){v.formatIn=["MOVIE"];v.sort=["START_DATE_DESC"];v.status="FINISHED";label="En son çıkan anime filmleri"}
+      if(yMode==="yakinda"){v.status="NOT_YET_RELEASED";v.sort=["POPULARITY_DESC"];label="Yakında çıkacaklar (en çok beklenenler)"}
+      const data=await gql(Q_MEDIA,v);hasNext=data.Page.pageInfo.hasNextPage;
+      data.Page.media.forEach(m=>{if(ySeen.has(m.id))return;ySeen.add(m.id);items.push([m,null])});
+    }
+    if(seq!==ySeq)return;
+    items.forEach(([m,ep])=>grid.append(card(m,ep)));
+    const shown=grid.querySelectorAll(".lcard").length;
+    if(!shown&&!hasNext)msg(grid,"Bu seçimde sonuç yok. Ülke filtresini kaldırmayı dene.");
+    $("#ycount").textContent=shown?`${label} · ${shown} anime`:"";
+    $("#ymore").hidden=!hasNext;yPage++;
+    $("#yUpdated").textContent="Güncellendi: "+new Date().toLocaleTimeString("tr",{hour:"2-digit",minute:"2-digit"});
+    if(!shown&&hasNext){yBusy=false;return loadYeni(false)}
+  }catch(e){if(seq!==ySeq)return;$("#ycount").textContent="";msg(grid,errText(e))}
+  finally{if(seq===ySeq)yBusy=false}
+}
+$("#ymore").onclick=()=>{if(!yBusy)loadYeni(false)};
+$("#yRefresh").onclick=()=>loadYeni(true);
+$("#yCountry").onchange=()=>loadYeni(true);
+
+/* ===== Keşfet ===== */
+Object.keys(GENRE_TR).forEach(g=>{const o=document.createElement("option");o.value=g;o.textContent=GENRE_TR[g];$("#fGenre").append(o)});
+for(let y=new Date().getFullYear()+1;y>=1960;y--){const o=document.createElement("option");o.value=y;o.textContent=y;$("#fYear").append(o)}
+let lPage=1,lSeq=0,lBusy=false,lStarted=false;
+function lVars(){const q=$("#lq").value.trim();const v={page:lPage,sort:[q?"SEARCH_MATCH":$("#fSort").value]};
+  if(q)v.search=q;if($("#fCountry").value)v.country=$("#fCountry").value;if($("#fGenre").value)v.genre=$("#fGenre").value;
+  const f=$("#fFormat").value;if(f==="MOVIE")v.formatIn=["MOVIE"];if(f==="SERIES")v.formatIn=["TV","TV_SHORT","ONA"];
+  if($("#fYear").value)v.year=+$("#fYear").value;return v}
+async function loadKesfet(reset){
+  lStarted=true;const grid=$("#lgrid");const seq=++lSeq;lBusy=true;
+  if(reset){lPage=1;grid.replaceChildren()}
+  $("#lmore").hidden=true;$("#lcount").textContent="Aranıyor…";
+  try{
+    const data=await gql(Q_MEDIA,lVars());if(seq!==lSeq)return;
+    const pg=data.Page;pg.media.forEach(m=>grid.append(card(m,null)));
+    const shown=grid.querySelectorAll(".lcard").length;
+    if(!shown)msg(grid,"Sonuç bulunamadı. Filtreleri gevşetmeyi ya da farklı bir yazılış denemeyi dene.");
+    $("#lcount").textContent=shown?`${pg.pageInfo.total>=5000?"5.000+":pg.pageInfo.total.toLocaleString("tr")} sonuç · ${shown} gösteriliyor`:"";
+    $("#lmore").hidden=!pg.pageInfo.hasNextPage;lPage++;
+  }catch(e){if(seq!==lSeq)return;$("#lcount").textContent="";msg(grid,errText(e))}
+  finally{if(seq===lSeq)lBusy=false}
+}
+let lt;$("#lq").addEventListener("input",()=>{clearTimeout(lt);lt=setTimeout(()=>loadKesfet(true),600)});
+["#fCountry","#fGenre","#fFormat","#fSort","#fYear"].forEach(s=>$(s).addEventListener("change",()=>loadKesfet(true)));
+$("#lmore").onclick=()=>{if(!lBusy)loadKesfet(false)};
+
+/* ===== Uygulama sürümü ===== */
+if(window.Android&&window.Android.appVersion){$("#appinfo").hidden=false;
+  try{$("#appver").textContent="Sürüm "+window.Android.appVersion()}catch(e){}
+  $("#checkUpd").onclick=()=>window.Android.checkUpdateNow()}
+
+/* ===== Sekmeler ===== */
+let yStarted=false;
+function show(v){document.querySelectorAll(".tab").forEach(t=>t.setAttribute("aria-selected",t.dataset.view===v));
+  ["yeni","kesfet","rehber"].forEach(id=>$("#"+id).hidden=v!==id);store.set("ap-tab",v);
+  if(v==="yeni"&&!yStarted){yStarted=true;loadYeni(true)}
+  if(v==="kesfet"&&!lStarted)loadKesfet(true)}
+document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>show(t.dataset.view));
+show(["yeni","kesfet","rehber"].includes(store.get("ap-tab"))?store.get("ap-tab"):"yeni");
+/* Uygulama arka plandan dönünce yeni bölümleri tazele (en fazla 30 dakikada bir) */
+let lastAuto=Date.now();
+document.addEventListener("visibilitychange",()=>{if(!document.hidden&&Date.now()-lastAuto>30*60*1000&&!$("#yeni").hidden){lastAuto=Date.now();loadYeni(true)}});
+</script>
