@@ -114,6 +114,9 @@ details.desc a{color:var(--accent);font-weight:600}
 .lrow{display:flex;gap:6px}
 .watch a.mem,.dwatch a.mem{border-color:var(--accent)}
 .watch a.jw,.dwatch a.jw{border-style:dashed;color:var(--muted)}
+.dayhead{grid-column:1/-1;font:700 16px var(--display);margin:8px 0 -2px;padding-bottom:4px;border-bottom:1px solid var(--line);text-transform:capitalize}
+.watch a.trlang,.dwatch a.trlang{border-color:var(--ok);color:var(--ok)}
+.eprow .thumb{width:112px;max-width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:8px;display:block;margin-bottom:6px;background:var(--line)}
 .nolink{font-size:12px;color:var(--muted);padding:2px 2px 0}
 .lrow .epbtn{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .fav{appearance:none;flex:none;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:8px;padding:0 11px;font:700 16px var(--body);cursor:pointer;line-height:1}
@@ -144,6 +147,7 @@ details.desc a{color:var(--accent);font-weight:600}
     <div class="row">
       <div class="seg" role="group" aria-label="Görünüm">
         <button class="chip" data-mode="bolumler" aria-pressed="true">Son bölümler</button>
+        <button class="chip" data-mode="takvim" aria-pressed="false">Haftalık takvim</button>
         <button class="chip" data-mode="sezon" aria-pressed="false">Bu sezon</button>
         <button class="chip" data-mode="filmler" aria-pressed="false">Yeni filmler</button>
         <button class="chip" data-mode="yakinda" aria-pressed="false">Yakında</button>
@@ -255,11 +259,14 @@ function setMembers(v){try{localStorage.setItem("ap-uyelik2",JSON.stringify(v))}
 function isMemberSite(site){const act=members();return MEMBER.some(p=>act.includes(p.id)&&p.alias.includes(site))}
 /* Yalnızca AniList'te kayıtlı resmî yayın bağlantıları; üyeliğin olanlar ★ ile en üstte */
 function officialLinks(m){const seen=new Set();const out=[];
-  (m.externalLinks||[]).filter(x=>x.type==="STREAMING"&&x.url&&/^https?:/i.test(x.url)).forEach(x=>{if(seen.has(x.site))return;seen.add(x.site);out.push(x)});
-  out.sort((a,b)=>isMemberSite(b.site)-isMemberSite(a.site));return out}
+  (m.externalLinks||[]).filter(x=>x.type==="STREAMING"&&x.url&&!x.isDisabled&&/^https?:/i.test(x.url)).forEach(x=>{const k=x.site+"|"+(x.language||"");if(seen.has(k))return;seen.add(k);out.push(x)});
+  const tr=x=>x.language==="Turkish"?1:0;
+  out.sort((a,b)=>tr(b)-tr(a)||isMemberSite(b.site)-isMemberSite(a.site));return out}
+const LANG_TR={Turkish:"Türkçe",English:"İngilizce",Japanese:"Japonca",Chinese:"Çince",Korean:"Korece",Spanish:"İspanyolca",Portuguese:"Portekizce",French:"Fransızca",German:"Almanca",Italian:"İtalyanca",Arabic:"Arapça",Russian:"Rusça"};
 function jwLink(m){const t=m.title.english||m.title.romaji||m.title.native||"";
   const a=watchLink("https://www.google.com/search?q="+enc("site:justwatch.com/tr "+t),"Türkiye'de nerede izlenir?",null);a.classList.add("jw");return a}
-function verifiedLinks(m){const out=officialLinks(m).map(x=>{const mem=isMemberSite(x.site);const a=watchLink(x.url,(mem?"★ ":"")+x.site,SITE_PRICE[x.site]||null);if(mem)a.classList.add("mem");return a});
+function verifiedLinks(m){const out=officialLinks(m).map(x=>{const mem=isMemberSite(x.site);const lang=x.language?(" · "+(LANG_TR[x.language]||x.language)):"";
+    const a=watchLink(x.url,(mem?"★ ":"")+x.site+lang,SITE_PRICE[x.site]||null);if(mem)a.classList.add("mem");if(x.language==="Turkish")a.classList.add("trlang");return a});
   if(!out.length){const n=document.createElement("div");n.className="nolink";n.textContent="Resmî yayın kaydı yok";out.push(n)}
   out.push(jwLink(m));return out}
 (function renderGuide(){const g=$("#guide");PLATFORMS.forEach(p=>{const c=document.createElement("article");c.className="pcard";
@@ -273,7 +280,8 @@ function verifiedLinks(m){const out=officialLinks(m).map(x=>{const mem=isMemberS
   MEMBER.forEach(p=>{const b=document.createElement("button");b.className="chip";b.textContent=p.name;b.setAttribute("aria-pressed",act.includes(p.id));
     b.onclick=()=>{let v=members();v=v.includes(p.id)?v.filter(x=>x!==p.id):[...v,p.id];setMembers(v);draw();rerenderGrids()};box.append(b)})};draw()})();
 function rerenderGrids(){
-  if(typeof yItems!=="undefined"&&yItems.length){const g=$("#ygrid");const off=g.querySelector(".offline");g.replaceChildren();if(off)g.append(off);yItems.forEach(([m,ep])=>g.append(card(m,ep)))}
+  if(typeof yItems!=="undefined"&&yItems.length){const g=$("#ygrid");const off=g.querySelector(".offline");g.replaceChildren();if(off)g.append(off);let ld=null;
+    yItems.forEach(([m,ep,d])=>{if(d){const k=(d instanceof Date?d:new Date(d)).toDateString();if(k!==ld){ld=k;g.append(dayHead(new Date(d)))}}g.append(card(m,ep))})}
   if(typeof lItems!=="undefined"&&lItems.length){const g=$("#lgrid");g.replaceChildren();lItems.forEach(m=>g.append(card(m,null)))}
   if(!$("#liste").hidden)renderListe(false)}
 
@@ -285,12 +293,14 @@ const FORMAT_TR={TV:"Dizi",TV_SHORT:"Kısa dizi",MOVIE:"Film",SPECIAL:"Özel",OV
 const STATUS_TR={RELEASING:"Yayında",FINISHED:"Bitti",NOT_YET_RELEASED:"Yakında",CANCELLED:"İptal",HIATUS:"Ara verdi"};
 const SEASON_TR={WINTER:"Kış",SPRING:"İlkbahar",SUMMER:"Yaz",FALL:"Sonbahar"};
 const FIELDS=`id siteUrl isAdult title{romaji english native} coverImage{large color} seasonYear episodes averageScore genres countryOfOrigin format status
- description(asHtml:false) externalLinks{site url type} nextAiringEpisode{episode airingAt} startDate{year month day}`;
+ description(asHtml:false) externalLinks{site url type language isDisabled} nextAiringEpisode{episode airingAt} startDate{year month day}`;
 const Q_MEDIA=`query($page:Int,$search:String,$country:CountryCode,$genre:String,$formatIn:[MediaFormat],$year:Int,$season:MediaSeason,$status:MediaStatus,$sort:[MediaSort]){
  Page(page:$page,perPage:24){pageInfo{hasNextPage total}
   media(type:ANIME,isAdult:false,search:$search,countryOfOrigin:$country,genre:$genre,format_in:$formatIn,seasonYear:$year,season:$season,status:$status,sort:$sort){${FIELDS}}}}`;
-const Q_DETAIL=`query($id:Int){Media(id:$id){${FIELDS} streamingEpisodes{title url site}}}`;
+const Q_DETAIL=`query($id:Int){Media(id:$id){${FIELDS} streamingEpisodes{title url site thumbnail}}}`;
 const Q_EPS=`query($id:Int,$a:Int,$b:Int){Page(perPage:50){airingSchedules(mediaId:$id,episode_greater:$a,episode_lesser:$b,sort:EPISODE){episode airingAt}}}`;
+const Q_AIRING_ASC=`query($page:Int,$from:Int,$to:Int){Page(page:$page,perPage:50){pageInfo{hasNextPage}
+ airingSchedules(airingAt_greater:$from,airingAt_lesser:$to,sort:TIME){episode airingAt media{${FIELDS}}}}}`;
 const Q_AIRING=`query($page:Int,$from:Int,$to:Int){Page(page:$page,perPage:50){pageInfo{hasNextPage}
  airingSchedules(airingAt_greater:$from,airingAt_lesser:$to,sort:TIME_DESC){episode airingAt media{${FIELDS}}}}}`;
 
@@ -390,24 +400,34 @@ async function renderListe(fetchFresh){
 /* ===== Çevrimdışı önbellek (Yeni Çıkanlar) ===== */
 function cacheKey(){return "ap-c-"+yMode+"-"+$("#yCountry").value}
 function trim(m){const x={...m};if(x.description&&x.description.length>600)x.description=x.description.slice(0,600);delete x.streamingEpisodes;return x}
-function saveCache(items){try{localStorage.setItem(cacheKey(),JSON.stringify({t:Date.now(),items:items.map(([m,ep])=>[trim(m),ep])}))}catch(e){}}
+function saveCache(items){try{localStorage.setItem(cacheKey(),JSON.stringify({t:Date.now(),items:items.map(([m,ep,d])=>[trim(m),ep,d?+d:null])}))}catch(e){}}
 function readCache(){try{return JSON.parse(localStorage.getItem(cacheKey())||"null")}catch(e){return null}}
 
 /* ===== Yeni Çıkanlar ===== */
+let lastDay=null;
+function dayHead(d){const h=document.createElement("h3");h.className="dayhead";const today=new Date();const tm=new Date();tm.setDate(today.getDate()+1);
+  const k=d.toDateString();h.textContent=k===today.toDateString()?"Bugün":k===tm.toDateString()?"Yarın":d.toLocaleDateString("tr",{weekday:"long",day:"numeric",month:"long"});return h}
 function currentSeason(){const n=new Date();const m=n.getMonth()+1;let y=n.getFullYear();
   if(m===12)return{season:"WINTER",year:y+1};if(m<=2)return{season:"WINTER",year:y};if(m<=5)return{season:"SPRING",year:y};if(m<=8)return{season:"SUMMER",year:y};return{season:"FALL",year:y}}
 let yMode=store.get("ap-ymode")||"bolumler",yPage=1,ySeq=0,yBusy=false,ySeen=new Set(),yItems=[],lItems=[];
-if(!["bolumler","sezon","filmler","yakinda"].includes(yMode))yMode="bolumler";
+if(!["bolumler","takvim","sezon","filmler","yakinda"].includes(yMode))yMode="bolumler";
 document.querySelectorAll("[data-mode]").forEach(b=>{b.setAttribute("aria-pressed",b.dataset.mode===yMode);
   b.onclick=()=>{yMode=b.dataset.mode;store.set("ap-ymode",yMode);document.querySelectorAll("[data-mode]").forEach(x=>x.setAttribute("aria-pressed",x===b));loadYeni(true)}});
 async function loadYeni(reset){
   const grid=$("#ygrid");const seq=++ySeq;yBusy=true;
-  if(reset){yPage=1;ySeen=new Set();yItems=[];grid.replaceChildren()}
+  if(reset){yPage=1;ySeen=new Set();yItems=[];lastDay=null;grid.replaceChildren()}
   $("#ymore").hidden=true;$("#ycount").textContent="Yükleniyor…";
   const country=$("#yCountry").value;
   try{
     let items=[],hasNext=false,label="";
-    if(yMode==="bolumler"){
+    if(yMode==="takvim"){
+      const now=Math.floor(Date.now()/1000);
+      const data=await gql(Q_AIRING_ASC,{page:yPage,from:now-3600,to:now+7*86400});
+      hasNext=data.Page.pageInfo.hasNextPage;
+      data.Page.airingSchedules.forEach(s=>{const m=s.media;if(!m||m.isAdult)return;if(country&&m.countryOfOrigin!==country)return;
+        const d=new Date(s.airingAt*1000);items.push([m,`${s.episode}. bölüm · ${d.toLocaleTimeString("tr",{hour:"2-digit",minute:"2-digit"})}`,d])});
+      label="Önümüzdeki 7 gün (Türkiye saatiyle)";
+    }else if(yMode==="bolumler"){
       const now=Math.floor(Date.now()/1000);
       const data=await gql(Q_AIRING,{page:yPage,from:now-7*86400,to:now});
       hasNext=data.Page.pageInfo.hasNextPage;
@@ -425,7 +445,7 @@ async function loadYeni(reset){
     }
     if(seq!==ySeq)return;
     if(reset)grid.replaceChildren();
-    items.forEach(([m,ep])=>{yItems.push([m,ep]);grid.append(card(m,ep))});
+    items.forEach(([m,ep,d])=>{if(d){const key=d.toDateString();if(key!==lastDay){lastDay=key;grid.append(dayHead(d))}}yItems.push([m,ep,d]);grid.append(card(m,ep))});
     if(yPage===1&&items.length)saveCache(items);
     const shown=grid.querySelectorAll(".lcard").length;
     if(!shown&&!hasNext)msg(grid,"Bu seçimde sonuç yok. Ülke filtresini kaldırmayı dene.");
@@ -437,7 +457,7 @@ async function loadYeni(reset){
     const c=reset?readCache():null;
     if(c&&c.items&&c.items.length){grid.replaceChildren();const n=document.createElement("div");n.className="offline";
       n.textContent="Bağlantı yok: "+new Date(c.t).toLocaleString("tr",{day:"2-digit",month:"short",hour:"2-digit",minute:"2-digit"})+" tarihli son liste gösteriliyor. Bağlanınca Yenile'ye bas.";grid.append(n);
-      c.items.forEach(([m,ep])=>{yItems.push([m,ep]);grid.append(card(m,ep))})}
+      let ld=null;c.items.forEach(([m,ep,d])=>{if(d){const dd=new Date(d);if(dd.toDateString()!==ld){ld=dd.toDateString();grid.append(dayHead(dd))}}yItems.push([m,ep,d?new Date(d):null]);grid.append(card(m,ep))})}
     else msg(grid,errText(e))}
   finally{if(seq===ySeq)yBusy=false}
 }
@@ -479,7 +499,7 @@ let dMedia=null,dSeq=0;
 function epCount(m){if(m.episodes)return m.episodes;if(m.nextAiringEpisode)return Math.max(m.nextAiringEpisode.episode,1);return 0}
 function airedCount(m){if(m.status==="FINISHED")return epCount(m);if(m.nextAiringEpisode)return m.nextAiringEpisode.episode-1;if(m.status==="NOT_YET_RELEASED")return 0;return epCount(m)}
 function seriesLinks(m){const box=document.createElement("div");box.className="dwatch";verifiedLinks(m).forEach(a=>box.append(a));return box}
-function epTitleMap(m){const map={};(m.streamingEpisodes||[]).forEach(se=>{const t=se.title||"";const mm=t.match(/(?:Episode|Ep\.?|Bölüm)\s*(\d+)\s*[-–:]?\s*(.*)/i);if(mm){const n=+mm[1];if(!map[n])map[n]={title:mm[2].trim(),url:se.url,site:se.site}}});return map}
+function epTitleMap(m){const map={};(m.streamingEpisodes||[]).forEach(se=>{const t=se.title||"";const mm=t.match(/(?:Episode|Ep\.?|Bölüm)\s*(\d+)\s*[-–:]?\s*(.*)/i);if(mm){const n=+mm[1];if(!map[n])map[n]={title:mm[2].trim(),url:se.url,site:se.site,thumb:se.thumbnail}}});return map}
 let dFocus=null;
 async function openDetail(m,opt){
   const my=++dSeq;dMedia=m;dChunk=-1;dFocus=opt&&opt.focus||null;const name=m.title.english||m.title.romaji||m.title.native||"?";
@@ -555,6 +575,7 @@ async function renderEpisodes(box,m,from,to,aired,full){
     const mt=document.createElement("div");mt.className="m";
     if(n>aired&&m.status!=="FINISHED"){mt.classList.add("soon");mt.textContent=m.nextAiringEpisode&&m.nextAiringEpisode.episode===n?"Yayın: "+until(m.nextAiringEpisode.airingAt):"Henüz yayınlanmadı"}
     main.append(t,mt);
+    if(titles[n]&&titles[n].thumb){const im=document.createElement("img");im.className="thumb";im.loading="lazy";im.alt="";im.src=titles[n].thumb;im.onerror=()=>im.remove();main.prepend(im)}
     const l=document.createElement("div");l.className="l";
     if(titles[n]&&titles[n].url){const a=watchLink(titles[n].url,(titles[n].site||"İzle")+" ▶",SITE_PRICE[titles[n].site]||null);a.classList.add("play");l.append(a)}
     if(!l.children.length)l.hidden=true;r.append(cb,main,l);box.append(r);rows[n]=mt});
