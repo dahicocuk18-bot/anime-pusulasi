@@ -47,9 +47,9 @@ input[type=search]{flex:1 1 240px;min-width:0}
 .lcard{background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden;display:flex;flex-direction:column;min-width:0}
 .cover{position:relative;aspect-ratio:2/3;max-width:100%;background:var(--line)}
 .cover img{width:100%;height:100%;object-fit:cover;display:block}
-.cover .flag{position:absolute;left:8px;top:8px;font:600 11px var(--body);background:rgba(10,12,20,.78);color:#fff;border-radius:6px;padding:3px 7px}
+.cover .flag{position:absolute;left:8px;top:8px;max-width:calc(100% - 62px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font:600 11px var(--body);background:rgba(10,12,20,.78);color:#fff;border-radius:6px;padding:3px 7px}
 .cover .score{position:absolute;right:8px;top:8px;font:600 11px var(--mono);background:var(--accent);color:var(--accent-ink);border-radius:6px;padding:3px 6px}
-.cover .ep{position:absolute;left:8px;bottom:8px;right:8px;font:600 12px var(--body);background:rgba(10,12,20,.82);color:#fff;border-radius:8px;padding:5px 8px}
+.cover .ep{position:absolute;left:8px;bottom:8px;right:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font:600 12px var(--body);background:rgba(10,12,20,.82);color:#fff;border-radius:8px;padding:5px 8px}
 .lbody{padding:10px;display:flex;flex-direction:column;gap:6px;flex:1;min-width:0}
 .lbody h3{font:600 14px/1.25 var(--display);margin:0;overflow-wrap:anywhere}
 .native{font-size:12px;color:var(--muted);overflow-wrap:anywhere}
@@ -192,7 +192,7 @@ const SITE_PRICE={"YouTube":"free","Bilibili":"free","Bilibili TV":"free","Crunc
 const API="https://graphql.anilist.co";
 const GENRE_TR={"Action":"Aksiyon","Adventure":"Macera","Comedy":"Komedi","Drama":"Dram","Fantasy":"Fantastik","Horror":"Korku","Mahou Shoujo":"Büyülü Kız","Mecha":"Mecha","Music":"Müzik","Mystery":"Gizem","Psychological":"Psikolojik","Romance":"Romantik","Sci-Fi":"Bilim Kurgu","Slice of Life":"Gündelik Hayat","Sports":"Spor","Supernatural":"Doğaüstü","Thriller":"Gerilim"};
 const COUNTRY_TR={JP:"Japonya",CN:"Çin",KR:"Kore",TW:"Tayvan"};
-const FORMAT_TR={TV:"Dizi",TV_SHORT:"Kısa dizi",MOVIE:"Film",SPECIAL:"Özel",OVA:"OVA",ONA:"İnternet dizisi",MUSIC:"Klip"};
+const FORMAT_TR={TV:"Dizi",TV_SHORT:"Kısa dizi",MOVIE:"Film",SPECIAL:"Özel",OVA:"OVA",ONA:"İnternet",MUSIC:"Klip"};
 const STATUS_TR={RELEASING:"Yayında",FINISHED:"Bitti",NOT_YET_RELEASED:"Yakında",CANCELLED:"İptal",HIATUS:"Ara verdi"};
 const SEASON_TR={WINTER:"Kış",SPRING:"İlkbahar",SUMMER:"Yaz",FALL:"Sonbahar"};
 const FIELDS=`id siteUrl isAdult title{romaji english native} coverImage{large color} seasonYear episodes averageScore genres countryOfOrigin format status
