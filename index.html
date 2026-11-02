@@ -112,6 +112,9 @@ details.desc a{color:var(--accent);font-weight:600}
 .prog{height:6px;border-radius:999px;background:var(--line);overflow:hidden;flex:1 1 120px;max-width:220px}
 .prog i{display:block;height:100%;background:var(--accent)}
 .lrow{display:flex;gap:6px}
+.watch a.mem,.dwatch a.mem{border-color:var(--accent)}
+.watch a.jw,.dwatch a.jw{border-style:dashed;color:var(--muted)}
+.nolink{font-size:12px;color:var(--muted);padding:2px 2px 0}
 .lrow .epbtn{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .fav{appearance:none;flex:none;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:8px;padding:0 11px;font:700 16px var(--body);cursor:pointer;line-height:1}
 .fav[aria-pressed="true"]{color:var(--accent);border-color:var(--accent);background:var(--accent-soft)}
@@ -192,7 +195,7 @@ details.desc a{color:var(--accent);font-weight:600}
   <section id="rehber" hidden>
     <div class="howto">
       <h2>Üyeliklerim</h2>
-      <p class="updated" style="margin:0 0 8px">Seçtiğin platformların düğmeleri her animede ve her bölümde görünür. Seçimin yalnızca bu telefonda saklanır.</p>
+      <p class="updated" style="margin:0 0 8px">Bir anime üyeliğin olan bir platformda resmî olarak yayındaysa ★ ile işaretlenir ve en üstte gösterilir. Seçimin yalnızca bu telefonda saklanır.</p>
       <div class="seg" id="memberChips" role="group" aria-label="Üyeliklerim"></div>
     </div>
     <div class="howto">
@@ -211,6 +214,7 @@ details.desc a{color:var(--accent);font-weight:600}
       <p class="updated">Ekranlar her açılışta kendiliğinden güncellenir. Yeni uygulama sürümü çıkınca günde bir kontrol edilir ve bildirim gelir.</p>
       <div class="row" style="margin-top:8px"><button class="btn" id="checkUpd">Güncellemeyi şimdi kontrol et</button></div>
     </div>
+    <p class="note"><b>Bağlantılar nasıl seçiliyor?</b> Her animede yalnızca AniList veritabanında kayıtlı <b>resmî yayın</b> bağlantıları gösterilir; tahmine dayalı arama düğmesi yoktur. Resmî yayınlar ülkeye göre değişebildiği için <b>"Türkiye'de nerede izlenir?"</b> düğmesi JustWatch Türkiye sayfasını açar; orada o yapımın Türkiye'de hangi platformda olduğu güncel olarak yazar.</p>
     <p class="note">Fiyatlar ve kataloglar sık değişir; üyelik almadan önce platformun kendi sayfasına bak. İnternette "Türkçe altyazılı anime izle" diye çıkan sitelerin çoğu lisanssızdır; bu uygulama yalnızca yasal platformlara bağlantı verir.</p>
   </section>
 </main>
@@ -239,18 +243,25 @@ const PLATFORMS=[
 const SITE_PRICE={"YouTube":"free","Bilibili":"free","Bilibili TV":"free","Crunchyroll":"paid","Plex":"free","Tubi TV":"free","Pluto TV":"free","RetroCrush":"free",
   "Netflix":"paid","beIN CONNECT":"paid","Amazon Prime Video":"paid","Amazon":"paid","Disney Plus":"paid","Hulu":"paid","HIDIVE":"paid","iQIYI":"paid","Tencent Video":"paid","WeTV":"paid","Youku":"paid","Max":"paid","HBO Max":"paid","Apple TV":"paid"};
 const MEMBER=[
-  {id:"bein",name:"beIN CONNECT",price:"paid",url:q=>"https://www.google.com/search?q="+enc("site:beinconnect.com.tr "+q)},
-  {id:"prime",name:"Prime Video",price:"paid",url:q=>"https://www.primevideo.com/search/ref=atv_nb_sr?phrase="+enc(q)+"&ie=UTF8"},
-  {id:"netflix",name:"Netflix",price:"paid",url:q=>"https://www.netflix.com/search?q="+enc(q)},
-  {id:"youtube",name:"YouTube",price:"free",url:q=>"https://www.youtube.com/results?search_query="+enc(q)},
-  {id:"bilibili",name:"Bilibili",price:"free",url:q=>"https://www.bilibili.tv/en/search-result?q="+enc(q)}];
-const OFFICIAL_ALIAS={bein:["beIN CONNECT","beIN Connect"],prime:["Amazon Prime Video","Amazon","Prime Video"],netflix:["Netflix"],youtube:["YouTube"],bilibili:["Bilibili","Bilibili TV"]};
-function members(){try{const v=JSON.parse(localStorage.getItem("ap-uyelik")||"null");if(Array.isArray(v)&&v.length)return v}catch(e){}return ["bein","prime","netflix","youtube","bilibili"]}
-function setMembers(v){try{localStorage.setItem("ap-uyelik",JSON.stringify(v))}catch(e){}}
-function memberLinks(m,seen,epNo){const out=[];const name=m.title.english||m.title.romaji||m.title.native||"";const rom=m.title.romaji||name;const act=members();
-  MEMBER.filter(p=>act.includes(p.id)).forEach(p=>{if(!epNo&&(OFFICIAL_ALIAS[p.id]||[]).some(a=>seen.has(a)))return;
-    let q;if(p.id==="youtube")q=epNo?`${rom} ${epNo}. bölüm türkçe altyazı`:`${rom} türkçe altyazı`;else if(p.id==="bilibili")q=epNo?`${rom} ${epNo}`:rom;else q=m.title.english||rom;
-    out.push(watchLink(p.url(q),p.name,p.price))});return out}
+  {id:"bein",name:"beIN CONNECT",alias:["beIN CONNECT","beIN Connect"]},
+  {id:"netflix",name:"Netflix",alias:["Netflix"]},
+  {id:"prime",name:"Prime Video",alias:["Amazon Prime Video","Amazon","Prime Video"]},
+  {id:"crunchyroll",name:"Crunchyroll",alias:["Crunchyroll"]},
+  {id:"disney",name:"Disney+",alias:["Disney Plus","Disney+"]},
+  {id:"youtube",name:"YouTube",alias:["YouTube"]},
+  {id:"bilibili",name:"Bilibili",alias:["Bilibili","Bilibili TV"]}];
+function members(){try{const v=JSON.parse(localStorage.getItem("ap-uyelik2")||"null");if(Array.isArray(v))return v}catch(e){}return ["bein","netflix","prime"]}
+function setMembers(v){try{localStorage.setItem("ap-uyelik2",JSON.stringify(v))}catch(e){}}
+function isMemberSite(site){const act=members();return MEMBER.some(p=>act.includes(p.id)&&p.alias.includes(site))}
+/* Yalnızca AniList'te kayıtlı resmî yayın bağlantıları; üyeliğin olanlar ★ ile en üstte */
+function officialLinks(m){const seen=new Set();const out=[];
+  (m.externalLinks||[]).filter(x=>x.type==="STREAMING"&&x.url&&/^https?:/i.test(x.url)).forEach(x=>{if(seen.has(x.site))return;seen.add(x.site);out.push(x)});
+  out.sort((a,b)=>isMemberSite(b.site)-isMemberSite(a.site));return out}
+function jwLink(m){const t=m.title.english||m.title.romaji||m.title.native||"";
+  const a=watchLink("https://www.google.com/search?q="+enc("site:justwatch.com/tr "+t),"Türkiye'de nerede izlenir?",null);a.classList.add("jw");return a}
+function verifiedLinks(m){const out=officialLinks(m).map(x=>{const mem=isMemberSite(x.site);const a=watchLink(x.url,(mem?"★ ":"")+x.site,SITE_PRICE[x.site]||null);if(mem)a.classList.add("mem");return a});
+  if(!out.length){const n=document.createElement("div");n.className="nolink";n.textContent="Resmî yayın kaydı yok";out.push(n)}
+  out.push(jwLink(m));return out}
 (function renderGuide(){const g=$("#guide");PLATFORMS.forEach(p=>{const c=document.createElement("article");c.className="pcard";
   c.innerHTML=`<h3></h3><dl><dt>Ücret</dt><dd></dd><dt>Türkçe altyazı</dt><dd></dd></dl><p></p><a class="btn" target="_blank" rel="noopener"></a>`;
   c.querySelector("h3").textContent=p.name;
@@ -259,8 +270,8 @@ function memberLinks(m,seen,epNo){const out=[];const name=m.title.english||m.tit
   const a=c.querySelector("a");a.href=p.url;a.textContent=p.cta+" ↗";g.append(c)})})();
 
 (function(){const box=$("#memberChips");const draw=()=>{box.replaceChildren();const act=members();
-  MEMBER.forEach(p=>{const b=document.createElement("button");b.className="chip";b.textContent=p.name+(p.price==="free"?" (ücretsiz)":"");b.setAttribute("aria-pressed",act.includes(p.id));
-    b.onclick=()=>{let v=members();v=v.includes(p.id)?v.filter(x=>x!==p.id):[...v,p.id];if(!v.length){showToast("En az bir platform seçili kalmalı");return}setMembers(v);draw();rerenderGrids()};box.append(b)})};draw()})();
+  MEMBER.forEach(p=>{const b=document.createElement("button");b.className="chip";b.textContent=p.name;b.setAttribute("aria-pressed",act.includes(p.id));
+    b.onclick=()=>{let v=members();v=v.includes(p.id)?v.filter(x=>x!==p.id):[...v,p.id];setMembers(v);draw();rerenderGrids()};box.append(b)})};draw()})();
 function rerenderGrids(){
   if(typeof yItems!=="undefined"&&yItems.length){const g=$("#ygrid");const off=g.querySelector(".offline");g.replaceChildren();if(off)g.append(off);yItems.forEach(([m,ep])=>g.append(card(m,ep)))}
   if(typeof lItems!=="undefined"&&lItems.length){const g=$("#lgrid");g.replaceChildren();lItems.forEach(m=>g.append(card(m,null)))}
@@ -321,9 +332,7 @@ function card(m,epInfo,opts){opts=opts||{};
     const p=document.createElement("p");p.textContent=d.length>420?d.slice(0,420)+"…":d;
     const tr=document.createElement("a");tr.href="https://translate.google.com/?sl=auto&tl=tr&op=translate&text="+enc(d.slice(0,4000));tr.target="_blank";tr.rel="noopener";tr.textContent="Türkçe oku ↗";
     det.append(sm,p,tr);b.append(det)}
-  const W=document.createElement("div");W.className="watch";const seen=new Set();
-  (m.externalLinks||[]).filter(x=>x.type==="STREAMING"&&x.url).forEach(x=>{if(seen.has(x.site))return;seen.add(x.site);W.append(watchLink(x.url,x.site,SITE_PRICE[x.site]||null))});
-  memberLinks(m,seen).forEach(a=>W.append(a));
+  const W=document.createElement("div");W.className="watch";verifiedLinks(m).forEach(a=>W.append(a));
   const eb=document.createElement("button");eb.className="epbtn";
   eb.textContent=opts.cont?`▶ ${opts.cont}. bölüm`:(m.format==="MOVIE"?"Filmi aç ▸":"Bölümler ▸");
   eb.onclick=()=>openDetail(m,opts.cont?{focus:opts.cont}:null);
@@ -469,10 +478,7 @@ function setWatched(id,set){try{localStorage.setItem(wKey(id),JSON.stringify([..
 let dMedia=null,dSeq=0;
 function epCount(m){if(m.episodes)return m.episodes;if(m.nextAiringEpisode)return Math.max(m.nextAiringEpisode.episode,1);return 0}
 function airedCount(m){if(m.status==="FINISHED")return epCount(m);if(m.nextAiringEpisode)return m.nextAiringEpisode.episode-1;if(m.status==="NOT_YET_RELEASED")return 0;return epCount(m)}
-function seriesLinks(m){const box=document.createElement("div");box.className="dwatch";const seen=new Set();const name=m.title.english||m.title.romaji||m.title.native;
-  (m.externalLinks||[]).filter(x=>x.type==="STREAMING"&&x.url).forEach(x=>{if(seen.has(x.site))return;seen.add(x.site);box.append(watchLink(x.url,x.site,SITE_PRICE[x.site]||null))});
-  memberLinks(m,seen).forEach(a=>box.append(a));
-  return box}
+function seriesLinks(m){const box=document.createElement("div");box.className="dwatch";verifiedLinks(m).forEach(a=>box.append(a));return box}
 function epTitleMap(m){const map={};(m.streamingEpisodes||[]).forEach(se=>{const t=se.title||"";const mm=t.match(/(?:Episode|Ep\.?|Bölüm)\s*(\d+)\s*[-–:]?\s*(.*)/i);if(mm){const n=+mm[1];if(!map[n])map[n]={title:mm[2].trim(),url:se.url,site:se.site}}});return map}
 let dFocus=null;
 async function openDetail(m,opt){
@@ -503,7 +509,7 @@ function renderDetail(m,_,full){
   if(m.format!=="MOVIE"){const cb=document.createElement("button");cb.className="btn primary";cb.id="dCont";cb.style.padding="8px 12px";act.append(cb);setCont(m,cb)}
   info.append(act);
   head.append(cov,info);body.append(head);
-  const wl=document.createElement("div");wl.className="label";wl.style.cssText="font:700 12px var(--body);letter-spacing:.05em;text-transform:uppercase;color:var(--muted)";wl.textContent="Dizinin tamamı";body.append(wl,seriesLinks(m));
+  const wl=document.createElement("div");wl.className="label";wl.style.cssText="font:700 12px var(--body);letter-spacing:.05em;text-transform:uppercase;color:var(--muted)";wl.textContent=m.format==="MOVIE"?"Resmî yayın":"Resmî yayın (dizinin tamamı)";body.append(wl,seriesLinks(m));
   const d=clean(m.description);
   if(d){const det=document.createElement("details");det.className="desc";det.style.margin="12px 0";const sm=document.createElement("summary");sm.textContent="Konusu";
     const p=document.createElement("p");p.textContent=d;const tr=document.createElement("a");tr.href="https://translate.google.com/?sl=auto&tl=tr&op=translate&text="+enc(d.slice(0,4000));tr.target="_blank";tr.rel="noopener";tr.textContent="Türkçe oku ↗";det.append(sm,p,tr);body.append(det)}
@@ -551,8 +557,7 @@ async function renderEpisodes(box,m,from,to,aired,full){
     main.append(t,mt);
     const l=document.createElement("div");l.className="l";
     if(titles[n]&&titles[n].url){const a=watchLink(titles[n].url,(titles[n].site||"İzle")+" ▶",SITE_PRICE[titles[n].site]||null);a.classList.add("play");l.append(a)}
-    memberLinks(m,new Set(),m.format==="MOVIE"?null:n).forEach(a=>{a.querySelector(".price")&&a.querySelector(".price").remove();l.append(a)});
-    r.append(cb,main,l);box.append(r);rows[n]=mt});
+    if(!l.children.length)l.hidden=true;r.append(cb,main,l);box.append(r);rows[n]=mt});
   if(!full||m.format==="MOVIE")return;
   try{const d=await gql(Q_EPS,{id:m.id,a:from-1,b:to+1});(d.Page.airingSchedules||[]).forEach(s=>{const mt=rows[s.episode];if(!mt)return;
       const dt=new Date(s.airingAt*1000).toLocaleDateString("tr",{day:"2-digit",month:"short",year:"numeric"});
