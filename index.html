@@ -49,7 +49,7 @@ input[type=search]{flex:1 1 240px;min-width:0}
 .cover img{width:100%;height:100%;object-fit:cover;display:block}
 .cover .flag{position:absolute;left:8px;top:8px;max-width:calc(100% - 62px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font:600 11px var(--body);background:rgba(10,12,20,.78);color:#fff;border-radius:6px;padding:3px 7px}
 .cover .score{position:absolute;right:8px;top:8px;font:600 11px var(--mono);background:var(--accent);color:var(--accent-ink);border-radius:6px;padding:3px 6px}
-.cover .ep{position:absolute;left:8px;bottom:8px;right:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font:600 12px var(--body);background:rgba(10,12,20,.82);color:#fff;border-radius:8px;padding:5px 8px}
+.cover .ep{position:absolute;left:8px;bottom:8px;right:8px;line-height:1.3;font:600 12px var(--body);background:rgba(10,12,20,.82);color:#fff;border-radius:8px;padding:5px 8px}
 .lbody{padding:10px;display:flex;flex-direction:column;gap:6px;flex:1;min-width:0}
 .lbody h3{font:600 14px/1.25 var(--display);margin:0;overflow-wrap:anywhere}
 .native{font-size:12px;color:var(--muted);overflow-wrap:anywhere}
@@ -84,6 +84,44 @@ details.desc a{color:var(--accent);font-weight:600}
 .howto h2{font:700 18px var(--display);margin:0 0 6px}
 .howto ol{margin:0;padding-left:20px;color:var(--muted);display:grid;gap:3px}
 .updated{font:12px var(--mono);color:var(--muted)}
+/* Bölüm ekranı */
+.cover,.lbody h3{cursor:pointer}
+.epbtn{appearance:none;border:1px solid var(--accent);background:var(--accent);color:var(--accent-ink);font:600 13px var(--body);border-radius:8px;padding:7px 8px;cursor:pointer;width:100%}
+.detail{position:fixed;inset:0;z-index:20;background:var(--bg);overflow:auto;padding-top:env(safe-area-inset-top,0px)}
+.detail[hidden]{display:none}
+.dbar{position:sticky;top:0;z-index:2;background:var(--bg);border-bottom:1px solid var(--line)}
+.dbar .wrap{display:flex;align-items:center;gap:10px;padding-block:10px}
+.dbar h2{font:700 17px/1.2 var(--display);margin:0;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dhead{display:grid;grid-template-columns:110px 1fr;gap:14px;padding-block:14px}
+.dhead .cover{border-radius:12px;overflow:hidden;cursor:default}
+.dinfo{display:flex;flex-direction:column;gap:6px;min-width:0}
+.dinfo h3{font:700 19px/1.2 var(--display);margin:0;overflow-wrap:anywhere;cursor:default}
+.dwatch{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+.dwatch a{display:inline-flex;align-items:center;gap:6px;font:600 13px var(--body);text-decoration:none;color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:7px 10px;background:var(--surface)}
+.eptools{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;margin:6px 0 10px}
+.eplist{display:flex;flex-direction:column;gap:8px;padding-bottom:40px}
+.eprow{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 12px;display:grid;grid-template-columns:auto 1fr;gap:4px 12px;align-items:start}
+.eprow.seen{opacity:.62}
+.eprow input{width:22px;height:22px;margin:2px 0 0;accent-color:var(--accent)}
+.eprow .t{font:600 15px/1.3 var(--body);overflow-wrap:anywhere}
+.eprow .m{font:12px var(--mono);color:var(--muted)}
+.eprow .m.soon{color:var(--warn)}
+.eprow .l{grid-column:2;display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+.eprow .l a{font:600 12px var(--body);text-decoration:none;color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:5px 8px}
+.eprow .l a.play{border-color:var(--accent);color:var(--accent)}
+.prog{height:6px;border-radius:999px;background:var(--line);overflow:hidden;flex:1 1 120px;max-width:220px}
+.prog i{display:block;height:100%;background:var(--accent)}
+.lrow{display:flex;gap:6px}
+.lrow .epbtn{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fav{appearance:none;flex:none;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:8px;padding:0 11px;font:700 16px var(--body);cursor:pointer;line-height:1}
+.fav[aria-pressed="true"]{color:var(--accent);border-color:var(--accent);background:var(--accent-soft)}
+.cover .ep.new{background:var(--accent);color:var(--accent-ink)}
+.dact{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+.dact .fav{padding:8px 12px;font-size:14px}
+.eprow.focus{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-soft)}
+.toast{position:fixed;left:max(16px,env(safe-area-inset-left,0px));right:max(16px,env(safe-area-inset-right,0px));margin:0 auto;width:fit-content;bottom:calc(18px + env(safe-area-inset-bottom,0px));z-index:40;background:var(--ink);color:var(--bg);border-radius:12px;padding:10px 14px;display:flex;gap:12px;align-items:center;max-width:calc(100vw - 32px);font-size:14px;box-shadow:0 6px 24px rgba(0,0,0,.25)}
+.toast button{appearance:none;border:0;background:none;color:var(--accent);font:700 14px var(--body);cursor:pointer;white-space:nowrap;padding:4px}
+.offline{grid-column:1/-1;font-size:13px;color:var(--warn);background:var(--warn-soft);border-radius:10px;padding:8px 12px}
 </style>
 
 <header class="top wrap">
@@ -93,6 +131,7 @@ details.desc a{color:var(--accent);font-weight:600}
 
 <nav class="tabs" aria-label="Bölümler"><div class="wrap" role="tablist">
   <button class="tab" role="tab" id="t-yeni" aria-selected="true" data-view="yeni">Yeni Çıkanlar</button>
+  <button class="tab" role="tab" id="t-liste" aria-selected="false" data-view="liste">Listem</button>
   <button class="tab" role="tab" id="t-kesfet" aria-selected="false" data-view="kesfet">Keşfet</button>
   <button class="tab" role="tab" id="t-rehber" aria-selected="false" data-view="rehber">Nerede İzlenir</button>
 </div></nav>
@@ -117,6 +156,12 @@ details.desc a{color:var(--accent);font-weight:600}
     <p class="count" id="ycount" role="status"></p>
     <div class="lgrid" id="ygrid"></div>
     <div class="more"><button class="btn" id="ymore" hidden>Daha fazla göster</button></div>
+  </section>
+
+  <section id="liste" hidden>
+    <p class="count" id="lscount" role="status"></p>
+    <div class="lgrid" id="lsgrid"></div>
+    <p class="note">Listen ve izlediğin bölümler yalnızca bu telefonda saklanır. Bir bölümü "izledim" diye işaretlediğinde dizi kendiliğinden listene eklenir.</p>
   </section>
 
   <section id="kesfet" hidden>
@@ -146,6 +191,11 @@ details.desc a{color:var(--accent);font-weight:600}
 
   <section id="rehber" hidden>
     <div class="howto">
+      <h2>Üyeliklerim</h2>
+      <p class="updated" style="margin:0 0 8px">Seçtiğin platformların düğmeleri her animede ve her bölümde görünür. Seçimin yalnızca bu telefonda saklanır.</p>
+      <div class="seg" id="memberChips" role="group" aria-label="Üyeliklerim"></div>
+    </div>
+    <div class="howto">
       <h2>YouTube'da Türkçe altyazı nasıl açılır</h2>
       <ol>
         <li>Resmi kanaldaki bölümü aç (aşağıdaki YouTube kartındaki kanallar).</li>
@@ -165,6 +215,11 @@ details.desc a{color:var(--accent);font-weight:600}
   </section>
 </main>
 
+<div class="detail" id="detail" hidden role="dialog" aria-modal="true" aria-labelledby="dTitle">
+  <div class="dbar"><div class="wrap"><button class="btn" id="dBack">← Geri</button><h2 id="dTitle"></h2></div></div>
+  <div class="wrap" id="dBody"></div>
+</div>
+
 <script>
 const $=s=>document.querySelector(s);
 const enc=encodeURIComponent;
@@ -173,20 +228,43 @@ const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},se
 /* ===== Platformlar (fiyat etiketi ve Türkçe altyazı durumu) ===== */
 const PLATFORMS=[
   {name:"YouTube (resmi kanallar)",price:"free",tr:"Otomatik çeviriyle",note:"Muse Asia, Ani-One Asia, Toei Animation gibi resmi kanallar bölümleri ücretsiz yayınlar.",url:"https://www.youtube.com/@MuseAsia",cta:"Muse Asia kanalını aç"},
-  {name:"Crunchyroll",price:"free",priceText:"Ücretsiz (reklamlı) + ücretli",tr:"Sınırlı",note:"Reklamlı ücretsiz planda bazı diziler izlenebilir; yeni bölümler genelde ücretli üyelikte.",url:"https://www.crunchyroll.com",cta:"Crunchyroll'u aç"},
+  {name:"Crunchyroll",price:"paid",tr:"Sınırlı",note:"Ücretsiz reklamlı planı 31 Aralık 2025'te kapandı; artık yalnızca ücretli üyelikle izlenebiliyor.",url:"https://www.crunchyroll.com",cta:"Crunchyroll'u aç"},
+  {name:"Plex",price:"free",priceText:"Ücretsiz (reklamlı)",tr:"Yapıma göre",note:"Ücretsiz hesapla reklamlı film ve dizi; anime kataloğu ülkeye göre değişir.",url:"https://watch.plex.tv",cta:"Plex'i aç"},
   {name:"Bilibili",price:"free",tr:"Otomatik çeviriyle",note:"Özellikle Çin donghua'ları için. Çoğu içerik ücretsiz, bazıları VIP.",url:"https://www.bilibili.tv",cta:"Bilibili'yi aç"},
+  {name:"beIN CONNECT",price:"paid",tr:"Var (Crunchyroll animeleri)",note:"Ağustos 2025'ten beri Crunchyroll'un popüler animeleri (Jujutsu Kaisen, Re:Zero, Dr. Stone…) Türkçe altyazılı yayında.",url:"https://www.beinconnect.com.tr",cta:"beIN CONNECT'i aç"},
   {name:"Netflix",price:"paid",tr:"Çoğu yapımda var",note:"Türkçe altyazı ve dublaj seçeneği en geniş platform.",url:"https://www.netflix.com/tr/browse/genre/7424",cta:"Netflix anime"},
   {name:"Prime Video",price:"paid",tr:"Seçili yapımlarda",note:"Bazı popüler animeler Türkçe altyazılı.",url:"https://www.primevideo.com",cta:"Prime Video'yu aç"},
   {name:"Disney+",price:"paid",tr:"Sınırlı",note:"Az sayıda anime; bazıları Türkçe altyazılı.",url:"https://www.disneyplus.com/tr-tr",cta:"Disney+'ı aç"}
 ];
-const SITE_PRICE={"YouTube":"free","Bilibili":"free","Bilibili TV":"free","Crunchyroll":"free","Tubi TV":"free","Pluto TV":"free","RetroCrush":"free",
-  "Netflix":"paid","Amazon Prime Video":"paid","Amazon":"paid","Disney Plus":"paid","Hulu":"paid","HIDIVE":"paid","iQIYI":"paid","Tencent Video":"paid","WeTV":"paid","Youku":"paid","Max":"paid","HBO Max":"paid","Apple TV":"paid"};
+const SITE_PRICE={"YouTube":"free","Bilibili":"free","Bilibili TV":"free","Crunchyroll":"paid","Plex":"free","Tubi TV":"free","Pluto TV":"free","RetroCrush":"free",
+  "Netflix":"paid","beIN CONNECT":"paid","Amazon Prime Video":"paid","Amazon":"paid","Disney Plus":"paid","Hulu":"paid","HIDIVE":"paid","iQIYI":"paid","Tencent Video":"paid","WeTV":"paid","Youku":"paid","Max":"paid","HBO Max":"paid","Apple TV":"paid"};
+const MEMBER=[
+  {id:"bein",name:"beIN CONNECT",price:"paid",url:q=>"https://www.google.com/search?q="+enc("site:beinconnect.com.tr "+q)},
+  {id:"prime",name:"Prime Video",price:"paid",url:q=>"https://www.primevideo.com/search/ref=atv_nb_sr?phrase="+enc(q)+"&ie=UTF8"},
+  {id:"netflix",name:"Netflix",price:"paid",url:q=>"https://www.netflix.com/search?q="+enc(q)},
+  {id:"youtube",name:"YouTube",price:"free",url:q=>"https://www.youtube.com/results?search_query="+enc(q)},
+  {id:"bilibili",name:"Bilibili",price:"free",url:q=>"https://www.bilibili.tv/en/search-result?q="+enc(q)}];
+const OFFICIAL_ALIAS={bein:["beIN CONNECT","beIN Connect"],prime:["Amazon Prime Video","Amazon","Prime Video"],netflix:["Netflix"],youtube:["YouTube"],bilibili:["Bilibili","Bilibili TV"]};
+function members(){try{const v=JSON.parse(localStorage.getItem("ap-uyelik")||"null");if(Array.isArray(v)&&v.length)return v}catch(e){}return ["bein","prime","netflix","youtube","bilibili"]}
+function setMembers(v){try{localStorage.setItem("ap-uyelik",JSON.stringify(v))}catch(e){}}
+function memberLinks(m,seen,epNo){const out=[];const name=m.title.english||m.title.romaji||m.title.native||"";const rom=m.title.romaji||name;const act=members();
+  MEMBER.filter(p=>act.includes(p.id)).forEach(p=>{if(!epNo&&(OFFICIAL_ALIAS[p.id]||[]).some(a=>seen.has(a)))return;
+    let q;if(p.id==="youtube")q=epNo?`${rom} ${epNo}. bölüm türkçe altyazı`:`${rom} türkçe altyazı`;else if(p.id==="bilibili")q=epNo?`${rom} ${epNo}`:rom;else q=m.title.english||rom;
+    out.push(watchLink(p.url(q),p.name,p.price))});return out}
 (function renderGuide(){const g=$("#guide");PLATFORMS.forEach(p=>{const c=document.createElement("article");c.className="pcard";
   c.innerHTML=`<h3></h3><dl><dt>Ücret</dt><dd></dd><dt>Türkçe altyazı</dt><dd></dd></dl><p></p><a class="btn" target="_blank" rel="noopener"></a>`;
   c.querySelector("h3").textContent=p.name;
   const pr=document.createElement("span");pr.className="price "+p.price;pr.textContent=p.priceText||(p.price==="free"?"Ücretsiz":"Ücretli");c.querySelectorAll("dd")[0].append(pr);
   c.querySelectorAll("dd")[1].textContent=p.tr;c.querySelector("p").textContent=p.note;
   const a=c.querySelector("a");a.href=p.url;a.textContent=p.cta+" ↗";g.append(c)})})();
+
+(function(){const box=$("#memberChips");const draw=()=>{box.replaceChildren();const act=members();
+  MEMBER.forEach(p=>{const b=document.createElement("button");b.className="chip";b.textContent=p.name+(p.price==="free"?" (ücretsiz)":"");b.setAttribute("aria-pressed",act.includes(p.id));
+    b.onclick=()=>{let v=members();v=v.includes(p.id)?v.filter(x=>x!==p.id):[...v,p.id];if(!v.length){showToast("En az bir platform seçili kalmalı");return}setMembers(v);draw();rerenderGrids()};box.append(b)})};draw()})();
+function rerenderGrids(){
+  if(typeof yItems!=="undefined"&&yItems.length){const g=$("#ygrid");const off=g.querySelector(".offline");g.replaceChildren();if(off)g.append(off);yItems.forEach(([m,ep])=>g.append(card(m,ep)))}
+  if(typeof lItems!=="undefined"&&lItems.length){const g=$("#lgrid");g.replaceChildren();lItems.forEach(m=>g.append(card(m,null)))}
+  if(!$("#liste").hidden)renderListe(false)}
 
 /* ===== AniList ===== */
 const API="https://graphql.anilist.co";
@@ -200,6 +278,8 @@ const FIELDS=`id siteUrl isAdult title{romaji english native} coverImage{large c
 const Q_MEDIA=`query($page:Int,$search:String,$country:CountryCode,$genre:String,$formatIn:[MediaFormat],$year:Int,$season:MediaSeason,$status:MediaStatus,$sort:[MediaSort]){
  Page(page:$page,perPage:24){pageInfo{hasNextPage total}
   media(type:ANIME,isAdult:false,search:$search,countryOfOrigin:$country,genre:$genre,format_in:$formatIn,seasonYear:$year,season:$season,status:$status,sort:$sort){${FIELDS}}}}`;
+const Q_DETAIL=`query($id:Int){Media(id:$id){${FIELDS} streamingEpisodes{title url site}}}`;
+const Q_EPS=`query($id:Int,$a:Int,$b:Int){Page(perPage:50){airingSchedules(mediaId:$id,episode_greater:$a,episode_lesser:$b,sort:EPISODE){episode airingAt}}}`;
 const Q_AIRING=`query($page:Int,$from:Int,$to:Int){Page(page:$page,perPage:50){pageInfo{hasNextPage}
  airingSchedules(airingAt_greater:$from,airingAt_lesser:$to,sort:TIME_DESC){episode airingAt media{${FIELDS}}}}}`;
 
@@ -219,20 +299,20 @@ function watchLink(href,label,price){const a=document.createElement("a");a.href=
   const t=document.createElement("span");t.textContent=label+" ↗";a.append(t);
   if(price){const p=document.createElement("span");p.className="price "+price;p.textContent=price==="free"?"Ücretsiz":"Ücretli";a.append(p)}
   return a}
-function card(m,epInfo){
+function card(m,epInfo,opts){opts=opts||{};
   const name=m.title.english||m.title.romaji||m.title.native||"?";
   const el=document.createElement("article");el.className="lcard";
   const cov=document.createElement("div");cov.className="cover";if(m.coverImage&&m.coverImage.color)cov.style.background=m.coverImage.color;
   if(m.coverImage&&m.coverImage.large){const img=document.createElement("img");img.loading="lazy";img.alt=name;img.src=m.coverImage.large;img.onerror=()=>img.remove();cov.append(img)}
-  const fl=document.createElement("span");fl.className="flag";fl.textContent=[COUNTRY_TR[m.countryOfOrigin]||m.countryOfOrigin,FORMAT_TR[m.format]||m.format].filter(Boolean).join(" · ");cov.append(fl);
+  const fl=document.createElement("span");fl.className="flag";fl.textContent=COUNTRY_TR[m.countryOfOrigin]||m.countryOfOrigin||"";if(!fl.textContent)fl.hidden=true;cov.append(fl);
   if(m.averageScore){const sc=document.createElement("span");sc.className="score";sc.textContent=(m.averageScore/10).toFixed(1);cov.append(sc)}
-  if(epInfo){const ep=document.createElement("span");ep.className="ep";ep.textContent=epInfo;cov.append(ep)}
+  if(epInfo){const ep=document.createElement("span");ep.className="ep"+(opts.isNew?" new":"");ep.textContent=epInfo;cov.append(ep)}
   const b=document.createElement("div");b.className="lbody";
   const h=document.createElement("h3");h.textContent=name;b.append(h);
   const alt=[m.title.native,m.title.romaji].filter(x=>x&&x!==name);
   if(alt.length){const n=document.createElement("div");n.className="native";n.textContent=alt[0];b.append(n)}
   const meta=document.createElement("div");meta.className="meta";
-  meta.textContent=[m.seasonYear||(m.startDate&&m.startDate.year),m.episodes?m.episodes+" bölüm":null,STATUS_TR[m.status]].filter(Boolean).join(" · ");b.append(meta);
+  meta.textContent=[FORMAT_TR[m.format]||m.format,m.seasonYear||(m.startDate&&m.startDate.year),m.episodes?m.episodes+" bölüm":null,STATUS_TR[m.status]].filter(Boolean).join(" · ");b.append(meta);
   if(m.nextAiringEpisode&&!epInfo){const nx=document.createElement("div");nx.className="meta";nx.textContent=`${m.nextAiringEpisode.episode}. bölüm ${until(m.nextAiringEpisode.airingAt)}`;b.append(nx)}
   if(m.genres&&m.genres.length){const tg=document.createElement("div");tg.className="tags";
     m.genres.slice(0,3).forEach(g=>{const s=document.createElement("span");s.className="tag";s.textContent=GENRE_TR[g]||g;tg.append(s)});b.append(tg)}
@@ -243,24 +323,77 @@ function card(m,epInfo){
     det.append(sm,p,tr);b.append(det)}
   const W=document.createElement("div");W.className="watch";const seen=new Set();
   (m.externalLinks||[]).filter(x=>x.type==="STREAMING"&&x.url).forEach(x=>{if(seen.has(x.site))return;seen.add(x.site);W.append(watchLink(x.url,x.site,SITE_PRICE[x.site]||null))});
-  const q=m.title.romaji||name;
-  if(!seen.has("YouTube"))W.append(watchLink("https://www.youtube.com/results?search_query="+enc(q+" türkçe altyazı"),"YouTube'da ara","free"));
-  if(!seen.has("Netflix"))W.append(watchLink("https://www.netflix.com/search?q="+enc(m.title.english||q),"Netflix'te ara","paid"));
-  b.append(W);el.append(cov,b);return el}
+  memberLinks(m,seen).forEach(a=>W.append(a));
+  const eb=document.createElement("button");eb.className="epbtn";
+  eb.textContent=opts.cont?`▶ ${opts.cont}. bölüm`:(m.format==="MOVIE"?"Filmi aç ▸":"Bölümler ▸");
+  eb.onclick=()=>openDetail(m,opts.cont?{focus:opts.cont}:null);
+  cov.onclick=h.onclick=()=>openDetail(m,opts.cont?{focus:opts.cont}:null);
+  const row=document.createElement("div");row.className="lrow";row.append(eb,favBtn(m));
+  b.append(row,W);el.append(cov,b);return el}
 function msg(grid,t){const m=document.createElement("div");m.className="msg";m.textContent=t;grid.append(m)}
 function errText(e){return e&&e.status===429?"Çok hızlı istek gönderildi. Bir dakika bekleyip Yenile'ye bas."
   :"Anime veritabanına bağlanılamadı. İnternet bağlantını kontrol edip Yenile'ye bas. (claude.ai önizlemesinde canlı veri kapalıdır; uygulamada çalışır.)"}
 
+/* ===== Bildirim (toast) ===== */
+let toastT;
+function showToast(text,actLabel,act){document.querySelectorAll(".toast").forEach(t=>t.remove());clearTimeout(toastT);
+  const t=document.createElement("div");t.className="toast";t.setAttribute("role","status");const sp=document.createElement("span");sp.textContent=text;t.append(sp);
+  if(actLabel){const b=document.createElement("button");b.textContent=actLabel;b.onclick=()=>{t.remove();act()};t.append(b)}
+  document.body.append(t);toastT=setTimeout(()=>t.remove(),actLabel?6000:2500)}
+
+/* ===== Listem (takip listesi) ===== */
+const LKEY="ap-list";
+const Q_IDS=`query($ids:[Int]){Page(perPage:50){media(id_in:$ids,type:ANIME){${FIELDS}}}}`;
+function getList(){try{const v=JSON.parse(localStorage.getItem(LKEY)||"[]");return Array.isArray(v)?v:[]}catch(e){return[]}}
+function saveList(l){try{localStorage.setItem(LKEY,JSON.stringify(l))}catch(e){}}
+function snap(m){return {id:m.id,siteUrl:m.siteUrl,title:m.title,coverImage:m.coverImage,format:m.format,episodes:m.episodes,status:m.status,countryOfOrigin:m.countryOfOrigin,
+  nextAiringEpisode:m.nextAiringEpisode,seasonYear:m.seasonYear,averageScore:m.averageScore,genres:m.genres,externalLinks:m.externalLinks,startDate:m.startDate,isAdult:false}}
+function inList(id){return getList().some(x=>x.id===id)}
+function setFav(b,on){b.setAttribute("aria-pressed",on);b.textContent=b.classList.contains("big")?(on?"★ Listemde":"☆ Listeme ekle"):(on?"★":"☆");b.title=on?"Listemden çıkar":"Listeme ekle";b.setAttribute("aria-label",b.title)}
+function favBtn(m,big){const b=document.createElement("button");b.className="fav"+(big?" big":"");b.dataset.id=m.id;setFav(b,inList(m.id));
+  b.onclick=e=>{e.stopPropagation();const on=toggleList(m);showToast(on?"Listene eklendi":"Listenden çıkarıldı")};return b}
+function toggleList(m,force){let l=getList();const has=l.some(x=>x.id===m.id);const want=force===undefined?!has:force;
+  if(want&&!has)l.unshift({...snap(m),addedAt:Date.now()});if(!want&&has)l=l.filter(x=>x.id!==m.id);saveList(l);
+  document.querySelectorAll('.fav[data-id="'+m.id+'"]').forEach(b=>setFav(b,want));if(!$("#liste").hidden)renderListe(false);return want}
+function updateSnap(m){const l=getList();const i=l.findIndex(x=>x.id===m.id);if(i>=0){l[i]={...l[i],...snap(m)};saveList(l)}}
+function progress(m){const w=getWatched(m.id);const max=w.size?Math.max(...w):0;const aired=airedCount(m);
+  return {w,max,aired,next:(max<aired)?max+1:null,newCount:max?Math.max(0,aired-max):0}}
+function listCard(m){const p=progress(m);let info,isNew=false;
+  if(p.next&&p.newCount>0){info=p.newCount===1?"1 yeni bölüm":p.newCount+" yeni bölüm";isNew=true}
+  else if(p.next)info=p.max?`İzlenen ${p.max}/${epCount(m)||"?"}`:"Henüz başlamadın";
+  else if(m.status==="FINISHED")info="Bitirdin ✓";
+  else if(m.nextAiringEpisode)info=`${m.nextAiringEpisode.episode}. bölüm ${until(m.nextAiringEpisode.airingAt)}`;
+  else info="Yeni bölüm bekleniyor";
+  return card(m,info,{cont:p.next,isNew})}
+let lsBusy=false;
+async function renderListe(fetchFresh){
+  const grid=$("#lsgrid");const draw=()=>{const l=getList();grid.replaceChildren();
+    if(!l.length){msg(grid,"Listen boş. Bir animenin ☆ düğmesine bas ya da bir bölümü \"izledim\" diye işaretle; burada kaldığın yerden devam edersin.");$("#lscount").textContent="";return}
+    const rows=l.map(m=>({m,p:progress(m)}));
+    rows.sort((a,b)=>(b.p.newCount>0)-(a.p.newCount>0)||(!!b.p.next)-(!!a.p.next)||((b.m.addedAt||0)-(a.m.addedAt||0)));
+    rows.forEach(r=>grid.append(listCard(r.m)));
+    const nw=rows.filter(r=>r.p.newCount>0).length;
+    $("#lscount").textContent=`${l.length} anime`+(nw?` · ${nw} tanesinde yeni bölüm var`:"")};
+  draw();
+  if(!fetchFresh||lsBusy)return;const l=getList();if(!l.length)return;
+  lsBusy=true;try{const d=await gql(Q_IDS,{ids:l.map(x=>x.id).slice(0,50)});(d.Page.media||[]).forEach(updateSnap);if(!$("#liste").hidden)draw()}catch(e){}finally{lsBusy=false}}
+
+/* ===== Çevrimdışı önbellek (Yeni Çıkanlar) ===== */
+function cacheKey(){return "ap-c-"+yMode+"-"+$("#yCountry").value}
+function trim(m){const x={...m};if(x.description&&x.description.length>600)x.description=x.description.slice(0,600);delete x.streamingEpisodes;return x}
+function saveCache(items){try{localStorage.setItem(cacheKey(),JSON.stringify({t:Date.now(),items:items.map(([m,ep])=>[trim(m),ep])}))}catch(e){}}
+function readCache(){try{return JSON.parse(localStorage.getItem(cacheKey())||"null")}catch(e){return null}}
+
 /* ===== Yeni Çıkanlar ===== */
 function currentSeason(){const n=new Date();const m=n.getMonth()+1;let y=n.getFullYear();
   if(m===12)return{season:"WINTER",year:y+1};if(m<=2)return{season:"WINTER",year:y};if(m<=5)return{season:"SPRING",year:y};if(m<=8)return{season:"SUMMER",year:y};return{season:"FALL",year:y}}
-let yMode=store.get("ap-ymode")||"bolumler",yPage=1,ySeq=0,yBusy=false,ySeen=new Set();
+let yMode=store.get("ap-ymode")||"bolumler",yPage=1,ySeq=0,yBusy=false,ySeen=new Set(),yItems=[],lItems=[];
 if(!["bolumler","sezon","filmler","yakinda"].includes(yMode))yMode="bolumler";
 document.querySelectorAll("[data-mode]").forEach(b=>{b.setAttribute("aria-pressed",b.dataset.mode===yMode);
   b.onclick=()=>{yMode=b.dataset.mode;store.set("ap-ymode",yMode);document.querySelectorAll("[data-mode]").forEach(x=>x.setAttribute("aria-pressed",x===b));loadYeni(true)}});
 async function loadYeni(reset){
   const grid=$("#ygrid");const seq=++ySeq;yBusy=true;
-  if(reset){yPage=1;ySeen=new Set();grid.replaceChildren()}
+  if(reset){yPage=1;ySeen=new Set();yItems=[];grid.replaceChildren()}
   $("#ymore").hidden=true;$("#ycount").textContent="Yükleniyor…";
   const country=$("#yCountry").value;
   try{
@@ -282,14 +415,21 @@ async function loadYeni(reset){
       data.Page.media.forEach(m=>{if(ySeen.has(m.id))return;ySeen.add(m.id);items.push([m,null])});
     }
     if(seq!==ySeq)return;
-    items.forEach(([m,ep])=>grid.append(card(m,ep)));
+    if(reset)grid.replaceChildren();
+    items.forEach(([m,ep])=>{yItems.push([m,ep]);grid.append(card(m,ep))});
+    if(yPage===1&&items.length)saveCache(items);
     const shown=grid.querySelectorAll(".lcard").length;
     if(!shown&&!hasNext)msg(grid,"Bu seçimde sonuç yok. Ülke filtresini kaldırmayı dene.");
     $("#ycount").textContent=shown?`${label} · ${shown} anime`:"";
     $("#ymore").hidden=!hasNext;yPage++;
     $("#yUpdated").textContent="Güncellendi: "+new Date().toLocaleTimeString("tr",{hour:"2-digit",minute:"2-digit"});
     if(!shown&&hasNext){yBusy=false;return loadYeni(false)}
-  }catch(e){if(seq!==ySeq)return;$("#ycount").textContent="";msg(grid,errText(e))}
+  }catch(e){if(seq!==ySeq)return;$("#ycount").textContent="";
+    const c=reset?readCache():null;
+    if(c&&c.items&&c.items.length){grid.replaceChildren();const n=document.createElement("div");n.className="offline";
+      n.textContent="Bağlantı yok: "+new Date(c.t).toLocaleString("tr",{day:"2-digit",month:"short",hour:"2-digit",minute:"2-digit"})+" tarihli son liste gösteriliyor. Bağlanınca Yenile'ye bas.";grid.append(n);
+      c.items.forEach(([m,ep])=>{yItems.push([m,ep]);grid.append(card(m,ep))})}
+    else msg(grid,errText(e))}
   finally{if(seq===ySeq)yBusy=false}
 }
 $("#ymore").onclick=()=>{if(!yBusy)loadYeni(false)};
@@ -306,11 +446,11 @@ function lVars(){const q=$("#lq").value.trim();const v={page:lPage,sort:[q?"SEAR
   if($("#fYear").value)v.year=+$("#fYear").value;return v}
 async function loadKesfet(reset){
   lStarted=true;const grid=$("#lgrid");const seq=++lSeq;lBusy=true;
-  if(reset){lPage=1;grid.replaceChildren()}
+  if(reset){lPage=1;lItems=[];grid.replaceChildren()}
   $("#lmore").hidden=true;$("#lcount").textContent="Aranıyor…";
   try{
     const data=await gql(Q_MEDIA,lVars());if(seq!==lSeq)return;
-    const pg=data.Page;pg.media.forEach(m=>grid.append(card(m,null)));
+    const pg=data.Page;pg.media.forEach(m=>{lItems.push(m);grid.append(card(m,null))});
     const shown=grid.querySelectorAll(".lcard").length;
     if(!shown)msg(grid,"Sonuç bulunamadı. Filtreleri gevşetmeyi ya da farklı bir yazılış denemeyi dene.");
     $("#lcount").textContent=shown?`${pg.pageInfo.total>=5000?"5.000+":pg.pageInfo.total.toLocaleString("tr")} sonuç · ${shown} gösteriliyor`:"";
@@ -322,6 +462,103 @@ let lt;$("#lq").addEventListener("input",()=>{clearTimeout(lt);lt=setTimeout(()=
 ["#fCountry","#fGenre","#fFormat","#fSort","#fYear"].forEach(s=>$(s).addEventListener("change",()=>loadKesfet(true)));
 $("#lmore").onclick=()=>{if(!lBusy)loadKesfet(false)};
 
+/* ===== Bölüm ekranı ===== */
+function wKey(id){return "ap-w-"+id}
+function getWatched(id){try{return new Set(JSON.parse(localStorage.getItem(wKey(id))||"[]"))}catch(e){return new Set()}}
+function setWatched(id,set){try{localStorage.setItem(wKey(id),JSON.stringify([...set]))}catch(e){}}
+let dMedia=null,dSeq=0;
+function epCount(m){if(m.episodes)return m.episodes;if(m.nextAiringEpisode)return Math.max(m.nextAiringEpisode.episode,1);return 0}
+function airedCount(m){if(m.status==="FINISHED")return epCount(m);if(m.nextAiringEpisode)return m.nextAiringEpisode.episode-1;if(m.status==="NOT_YET_RELEASED")return 0;return epCount(m)}
+function seriesLinks(m){const box=document.createElement("div");box.className="dwatch";const seen=new Set();const name=m.title.english||m.title.romaji||m.title.native;
+  (m.externalLinks||[]).filter(x=>x.type==="STREAMING"&&x.url).forEach(x=>{if(seen.has(x.site))return;seen.add(x.site);box.append(watchLink(x.url,x.site,SITE_PRICE[x.site]||null))});
+  memberLinks(m,seen).forEach(a=>box.append(a));
+  return box}
+function epTitleMap(m){const map={};(m.streamingEpisodes||[]).forEach(se=>{const t=se.title||"";const mm=t.match(/(?:Episode|Ep\.?|Bölüm)\s*(\d+)\s*[-–:]?\s*(.*)/i);if(mm){const n=+mm[1];if(!map[n])map[n]={title:mm[2].trim(),url:se.url,site:se.site}}});return map}
+let dFocus=null;
+async function openDetail(m,opt){
+  const my=++dSeq;dMedia=m;dChunk=-1;dFocus=opt&&opt.focus||null;const name=m.title.english||m.title.romaji||m.title.native||"?";
+  $("#dTitle").textContent=name;const body=$("#dBody");body.replaceChildren();
+  $("#detail").hidden=false;document.body.style.overflow="hidden";$("#detail").scrollTop=0;
+  try{history.pushState({detail:1},"")}catch(e){}
+  renderDetail(m,null);
+  try{const d=await gql(Q_DETAIL,{id:m.id});if(my!==dSeq)return;if(d&&d.Media){dMedia=d.Media;updateSnap(d.Media);renderDetail(d.Media,null,true)}}
+  catch(e){if(my!==dSeq)return;const n=document.createElement("div");n.className="offline";n.style.margin="0 0 12px";n.textContent="Bölüm adları ve tarihleri alınamadı (bağlantı sorunu). Bölüm listesi ve izleme düğmeleri yine çalışır.";$("#dBody").prepend(n)}
+}
+function closeDetail(){if($("#detail").hidden)return;$("#detail").hidden=true;document.body.style.overflow="";dSeq++;if(!$("#liste").hidden)renderListe(false)}
+$("#dBack").onclick=()=>{closeDetail();try{if(history.state&&history.state.detail)history.back()}catch(e){}};
+window.addEventListener("popstate",closeDetail);
+let dChunk=0,dDesc=false;
+function renderDetail(m,_,full){
+  const body=$("#dBody");body.replaceChildren();const name=m.title.english||m.title.romaji||m.title.native||"?";
+  const head=document.createElement("div");head.className="dhead";
+  const cov=document.createElement("div");cov.className="cover";if(m.coverImage&&m.coverImage.color)cov.style.background=m.coverImage.color;
+  if(m.coverImage&&m.coverImage.large){const img=document.createElement("img");img.alt=name;img.src=m.coverImage.large;img.onerror=()=>img.remove();cov.append(img)}
+  const info=document.createElement("div");info.className="dinfo";
+  const h=document.createElement("h3");h.textContent=name;info.append(h);
+  const alt=[m.title.native,m.title.romaji].filter(x=>x&&x!==name);if(alt.length){const n=document.createElement("div");n.className="native";n.textContent=alt.join(" · ");info.append(n)}
+  const meta=document.createElement("div");meta.className="meta";
+  meta.textContent=[COUNTRY_TR[m.countryOfOrigin],FORMAT_TR[m.format]||m.format,m.seasonYear||(m.startDate&&m.startDate.year),m.episodes?m.episodes+" bölüm":null,STATUS_TR[m.status],m.averageScore?("Puan "+(m.averageScore/10).toFixed(1)):null].filter(Boolean).join(" · ");info.append(meta);
+  if(m.nextAiringEpisode){const nx=document.createElement("div");nx.className="meta";nx.textContent=`Sıradaki: ${m.nextAiringEpisode.episode}. bölüm ${until(m.nextAiringEpisode.airingAt)}`;info.append(nx)}
+  const act=document.createElement("div");act.className="dact";act.append(favBtn(m,true));
+  if(m.format!=="MOVIE"){const cb=document.createElement("button");cb.className="btn primary";cb.id="dCont";cb.style.padding="8px 12px";act.append(cb);setCont(m,cb)}
+  info.append(act);
+  head.append(cov,info);body.append(head);
+  const wl=document.createElement("div");wl.className="label";wl.style.cssText="font:700 12px var(--body);letter-spacing:.05em;text-transform:uppercase;color:var(--muted)";wl.textContent="Dizinin tamamı";body.append(wl,seriesLinks(m));
+  const d=clean(m.description);
+  if(d){const det=document.createElement("details");det.className="desc";det.style.margin="12px 0";const sm=document.createElement("summary");sm.textContent="Konusu";
+    const p=document.createElement("p");p.textContent=d;const tr=document.createElement("a");tr.href="https://translate.google.com/?sl=auto&tl=tr&op=translate&text="+enc(d.slice(0,4000));tr.target="_blank";tr.rel="noopener";tr.textContent="Türkçe oku ↗";det.append(sm,p,tr);body.append(det)}
+  const total=epCount(m);const aired=airedCount(m);
+  const sec=document.createElement("section");body.append(sec);
+  if(m.format==="MOVIE"||total===1){renderEpisodes(sec,m,1,1,aired,full);return}
+  if(!total){const p=document.createElement("p");p.className="msg";p.textContent=m.status==="NOT_YET_RELEASED"?"Henüz yayınlanmadı. Bölümler yayınlandıkça burada görünecek.":"Bölüm sayısı henüz belli değil.";sec.append(p);return}
+  const per=50;const chunks=Math.ceil(total/per);
+  if(dChunk<0||dChunk>=chunks)dChunk=Math.max(0,Math.floor(((dFocus||Math.max(aired,1))-1)/per));
+  const draw=()=>{sec.replaceChildren();
+    const w=getWatched(m.id);const tools=document.createElement("div");tools.className="eptools";
+    const ttl=document.createElement("h2");ttl.style.cssText="font:700 18px var(--display);margin:0";ttl.textContent=`Bölümler (${aired} / ${total} yayında)`;
+    const pr=document.createElement("div");pr.className="prog";pr.title=w.size+" bölüm izlendi";const pi=document.createElement("i");pi.style.width=Math.min(100,Math.round(w.size/Math.max(total,1)*100))+"%";pr.append(pi);
+    const ord=document.createElement("button");ord.className="btn";ord.style.padding="6px 10px";ord.textContent=dDesc?"Sondan başa":"Baştan sona";ord.onclick=()=>{dDesc=!dDesc;draw()};
+    tools.append(ttl,pr,ord);sec.append(tools);
+    if(chunks>1){const ch=document.createElement("div");ch.className="seg";ch.style.marginBottom="10px";
+      for(let i=0;i<chunks;i++){const b=document.createElement("button");b.className="chip";b.textContent=`${i*per+1}–${Math.min(total,(i+1)*per)}`;b.setAttribute("aria-pressed",i===dChunk);b.onclick=()=>{dChunk=i;draw()};ch.append(b)}sec.append(ch)}
+    const list=document.createElement("div");list.className="eplist";sec.append(list);
+    renderEpisodes(list,m,dChunk*per+1,Math.min(total,(dChunk+1)*per),aired,full);
+    if(dFocus)setTimeout(()=>{const e=document.getElementById("ep-"+dFocus);if(e){document.querySelectorAll(".eprow.focus").forEach(x=>x.classList.remove("focus"));e.classList.add("focus");e.scrollIntoView({block:"center"})}},60)};
+  dRedraw=draw;draw();
+}
+let dRedraw=null;
+function focusEp(m,n){dFocus=n;const per=50;const c=Math.floor((n-1)/per);if(c!==dChunk&&dRedraw){dChunk=c;dRedraw()}else{const e=document.getElementById("ep-"+n);if(e){document.querySelectorAll(".eprow.focus").forEach(x=>x.classList.remove("focus"));e.classList.add("focus");e.scrollIntoView({block:"center"})}}}
+function setCont(m,cb){cb=cb||document.getElementById("dCont");if(!cb)return;const pg=progress(m);cb.hidden=!pg.next;if(pg.next){cb.textContent=pg.max?`▶ ${pg.next}. bölümden devam`:"▶ 1. bölümden başla";cb.onclick=()=>focusEp(m,pg.next)}}
+function updateProg(m){setCont(m);const s=getWatched(m.id);const pi=document.querySelector("#detail .prog i");if(pi)pi.style.width=Math.min(100,Math.round(s.size/Math.max(epCount(m),1)*100))+"%";
+  const pr=document.querySelector("#detail .prog");if(pr)pr.title=s.size+" bölüm izlendi"}
+async function renderEpisodes(box,m,from,to,aired,full){
+  const titles=epTitleMap(m);const w=getWatched(m.id);const rows={};
+  const q=m.title.romaji||m.title.english||m.title.native||"";
+  const nums=[];for(let n=from;n<=to;n++)nums.push(n);if(dDesc)nums.reverse();
+  nums.forEach(n=>{const r=document.createElement("div");r.className="eprow"+(w.has(n)?" seen":"");r.id="ep-"+n;
+    const cb=document.createElement("input");cb.type="checkbox";cb.checked=w.has(n);cb.setAttribute("aria-label",n+". bölümü izledim");
+    cb.onchange=()=>{const s=getWatched(m.id);cb.checked?s.add(n):s.delete(n);setWatched(m.id,s);r.classList.toggle("seen",cb.checked);updateProg(m);
+      if(!cb.checked)return;
+      const added=!inList(m.id);if(added)toggleList(m,true);
+      let missing=0;for(let i=1;i<n;i++)if(!s.has(i))missing++;
+      if(missing>0&&n>1)showToast((added?"Listene eklendi. ":"")+`Önceki ${missing} bölüm de izlendi mi?`,"Hepsini işaretle",()=>{const s2=getWatched(m.id);for(let i=1;i<n;i++)s2.add(i);setWatched(m.id,s2);
+        document.querySelectorAll(".eprow").forEach(row=>{const k=+row.id.slice(3);if(k<n){row.classList.add("seen");const c=row.querySelector("input");if(c)c.checked=true}});updateProg(m)});
+      else if(added)showToast("Listene eklendi")};
+    const main=document.createElement("div");
+    const t=document.createElement("div");t.className="t";const tt=titles[n]&&titles[n].title;t.textContent=m.format==="MOVIE"?"Film":`${n}. bölüm${tt?" · "+tt:""}`;
+    const mt=document.createElement("div");mt.className="m";
+    if(n>aired&&m.status!=="FINISHED"){mt.classList.add("soon");mt.textContent=m.nextAiringEpisode&&m.nextAiringEpisode.episode===n?"Yayın: "+until(m.nextAiringEpisode.airingAt):"Henüz yayınlanmadı"}
+    main.append(t,mt);
+    const l=document.createElement("div");l.className="l";
+    if(titles[n]&&titles[n].url){const a=watchLink(titles[n].url,(titles[n].site||"İzle")+" ▶",SITE_PRICE[titles[n].site]||null);a.classList.add("play");l.append(a)}
+    memberLinks(m,new Set(),m.format==="MOVIE"?null:n).forEach(a=>{a.querySelector(".price")&&a.querySelector(".price").remove();l.append(a)});
+    r.append(cb,main,l);box.append(r);rows[n]=mt});
+  if(!full||m.format==="MOVIE")return;
+  try{const d=await gql(Q_EPS,{id:m.id,a:from-1,b:to+1});(d.Page.airingSchedules||[]).forEach(s=>{const mt=rows[s.episode];if(!mt)return;
+      const dt=new Date(s.airingAt*1000).toLocaleDateString("tr",{day:"2-digit",month:"short",year:"numeric"});
+      mt.textContent=s.airingAt*1000>Date.now()?"Yayın: "+dt+" ("+until(s.airingAt)+")":"Yayınlandı: "+dt;mt.classList.toggle("soon",s.airingAt*1000>Date.now())})}catch(e){}
+}
+
 /* ===== Uygulama sürümü ===== */
 if(window.Android&&window.Android.appVersion){$("#appinfo").hidden=false;
   try{$("#appver").textContent="Sürüm "+window.Android.appVersion()}catch(e){}
@@ -330,12 +567,16 @@ if(window.Android&&window.Android.appVersion){$("#appinfo").hidden=false;
 /* ===== Sekmeler ===== */
 let yStarted=false;
 function show(v){document.querySelectorAll(".tab").forEach(t=>t.setAttribute("aria-selected",t.dataset.view===v));
-  ["yeni","kesfet","rehber"].forEach(id=>$("#"+id).hidden=v!==id);store.set("ap-tab",v);
+  ["yeni","liste","kesfet","rehber"].forEach(id=>$("#"+id).hidden=v!==id);store.set("ap-tab",v);
+  if(v==="liste")renderListe(true);
   if(v==="yeni"&&!yStarted){yStarted=true;loadYeni(true)}
   if(v==="kesfet"&&!lStarted)loadKesfet(true)}
 document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>show(t.dataset.view));
-show(["yeni","kesfet","rehber"].includes(store.get("ap-tab"))?store.get("ap-tab"):"yeni");
+show(["yeni","liste","kesfet","rehber"].includes(store.get("ap-tab"))?store.get("ap-tab"):"yeni");
+/* Aşağı inince sonraki sayfa kendiliğinden yüklenir */
+if("IntersectionObserver" in window){const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting&&!e.target.hidden)e.target.click()}),{rootMargin:"600px 0px"});io.observe($("#ymore"));io.observe($("#lmore"))}
 /* Uygulama arka plandan dönünce yeni bölümleri tazele (en fazla 30 dakikada bir) */
 let lastAuto=Date.now();
-document.addEventListener("visibilitychange",()=>{if(!document.hidden&&Date.now()-lastAuto>30*60*1000&&!$("#yeni").hidden){lastAuto=Date.now();loadYeni(true)}});
+document.addEventListener("visibilitychange",()=>{if(document.hidden||Date.now()-lastAuto<=30*60*1000)return;lastAuto=Date.now();
+  if(!$("#yeni").hidden)loadYeni(true);if(!$("#liste").hidden)renderListe(true)});
 </script>
